@@ -2,7 +2,7 @@
 ;; (decopin-init)                                 ;; create *robot* and *ri*
 
 (require "package://pr2eus/robot-interface.l")
-(load "package://decopin_hand/decopin.l")
+(load "package://decopin_hand/euslisp/decopin.l")
 
 (defclass decopin-interface
   :super robot-interface
