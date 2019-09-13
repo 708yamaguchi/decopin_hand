@@ -46,9 +46,13 @@
    (find-if #'(lambda (j) (equal (send j :name) "rotational_joint")) joint-list)
    )
   ;; functions below are pre-defined pose of the hand.
-  ;; these functions are needed to be overwrite when the wire is re-rolled.
+  ;; only :reset-pose is needed to be overwrite when the wire is re-rolled. (others are relative)
   (:reset-pose ()
     (send self :angle-vector #f(-109 -100 -100 10)))
+  (:open ()
+    (send self :reset-pose)
+    (send self :angle-vector
+          (v+ (send self :angle-vector) #f(0 0 -80 80))))
   (:pinch ()
     (send self :reset-pose)
     (send self :angle-vector
