@@ -117,7 +117,7 @@ bool DynamixelController::loadDynamixels(void)
       return result;
     }
     else
-    {      
+    {
       ROS_INFO("Name : %s, ID : %d, Model Number : %d", dxl.first.c_str(), dxl.second, model_number);
     }
   }
@@ -225,7 +225,7 @@ bool DynamixelController::initSDKHandlers(void)
   }
 
   if (dxl_wb_->getProtocolVersion() == 2.0f)
-  {  
+  {
     uint16_t start_address = std::min(control_items_["Present_Position"]->address, control_items_["Present_Current"]->address);
     uint16_t read_length = control_items_["Present_Position"]->data_length + control_items_["Present_Velocity"]->data_length + control_items_["Present_Current"]->data_length;
 
@@ -298,6 +298,8 @@ bool DynamixelController::getPresentPosition(std::vector<std::string> dxl_name)
       for(uint8_t index = 0; index < id_cnt; index++)
       {
         wp.position = dxl_wb_->convertValue2Radian(id_array[index], get_position[index]);
+        wp.velocity = 0.0f;
+        wp.acceleration = 0.0f;
         pre_goal_.push_back(wp);
       }
     }
@@ -319,6 +321,8 @@ bool DynamixelController::getPresentPosition(std::vector<std::string> dxl_name)
       }
 
       wp.position = dxl_wb_->convertValue2Radian(id, read_position);
+      wp.velocity = 0.0f;
+      wp.acceleration = 0.0f;
       pre_goal_.push_back(wp);
     }
   }
@@ -438,8 +442,8 @@ void DynamixelController::readCallback(const ros::TimerEvent&)
     }
     else if(dxl_wb_->getProtocolVersion() == 1.0f)
     {
-      uint16_t length_of_data = control_items_["Present_Position"]->data_length + 
-                                control_items_["Present_Velocity"]->data_length + 
+      uint16_t length_of_data = control_items_["Present_Position"]->data_length +
+                                control_items_["Present_Velocity"]->data_length +
                                 control_items_["Present_Current"]->data_length;
       uint32_t get_all_data[length_of_data];
       uint8_t dxl_cnt = 0;
@@ -724,6 +728,7 @@ void DynamixelController::trajectoryMsgCallback(const trajectory_msgs::JointTraj
     if (id_cnt != 0)
     {
       uint8_t cnt = 0;
+      ROS_INFO("msg->points.size(): %d", msg->points.size());
       while(cnt < msg->points.size())
       {
         std::vector<WayPoint> goal;
