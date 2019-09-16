@@ -40,3 +40,7 @@
     (setq *robot* (instance decopin :init)))
   (unless (boundp '*ri*)
     (setq *ri* (instance decopin-interface :init))))
+
+;; set the robot reset-pose before calling this function
+(defun set-reset-pose ()
+  (send *robot* :set-reset-pose (send *ri* :state :potentio-vector :wait-until-update t)))

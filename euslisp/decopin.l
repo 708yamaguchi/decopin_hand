@@ -1,6 +1,6 @@
 (defclass decopin
   :super cascaded-link
-  :slots ()
+  :slots (reset-pose-)
   )
 
 (defmethod decopin
@@ -47,12 +47,17 @@
    )
   ;; functions below are pre-defined pose of the hand.
   ;; only :reset-pose is needed to be overwrite when the wire is re-rolled. (others are relative)
+  (:set-reset-pose (av)
+    (setq reset-pose- av))
   (:reset-pose ()
-    (send self :angle-vector #f(-109 -100 -100 10)))
+    (if (eq reset-pose- nil)
+      (progn (format t "call (set-reset-pose)~%")
+             (return-from :reset-pose))
+      (send self :angle-vector reset-pose-)))
   (:open ()
     (send self :reset-pose)
     (send self :angle-vector
-          (v+ (send self :angle-vector) #f(0 0 -80 80))))
+          (v+ (send self :angle-vector) #f(0 80 -80 80))))
   (:pinch ()
     (send self :reset-pose)
     (send self :angle-vector
