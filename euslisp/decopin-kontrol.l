@@ -1,3 +1,5 @@
+#!/usr/bin/env roseus
+
 (load "package://decopin_hand/euslisp/decopin-interface.l")
 (ros::load-ros-manifest "sensor_msgs")
 
