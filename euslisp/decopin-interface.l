@@ -12,7 +12,7 @@
 (defmethod decopin-interface
   (:init
    (&rest args)
-   (prog1 (send-super* :init :robot decopin :base-controller-action-name nil :joint-states-topic "/dynamixel_workbench/joint_states" args)
+   (prog1 (send-super* :init :robot decopin :base-controller-action-name nil :joint-states-topic "dynamixel_workbench/joint_states" args)
      (send self :add-controller :fullbody-controller)
      ))
   (:default-controller
@@ -24,8 +24,8 @@
    ()
    (list
     (list
-     (cons :controller-action "/dynamixel_workbench/follow_joint_trajectory_action")
-     (cons :controller-state "/dynamixel_workbench/follow_joint_trajectory_action/state")
+     (cons :controller-action "dynamixel_workbench/follow_joint_trajectory_action")
+     (cons :controller-state "dynamixel_workbench/follow_joint_trajectory_action/state")
      (cons :action-type control_msgs::FollowJointTrajectoryAction)
      (cons :joint-names (send-all (send robot :joint-list) :name))))
    )
@@ -43,4 +43,6 @@
 
 ;; set the robot reset-pose before calling this function
 (defun set-reset-pose ()
-  (send *robot* :set-reset-pose (send *ri* :state :potentio-vector :wait-until-update t)))
+  ;; Sometimes this function does not return if you use :wait-until-update t
+  ;; (send *robot* :set-reset-pose (send *ri* :state :potentio-vector :wait-until-update t)))
+  (send *robot* :set-reset-pose (send *ri* :state :potentio-vector)))
