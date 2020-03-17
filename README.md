@@ -24,8 +24,15 @@ roslaunch decopin_hand dynamixel_workbench_controllers.launch
 ```
 
 5. Move dynamixels via roseus
-This version do not use euslisp modle and robot-interface.
+The robot class is inherited from robot-interface.
 ```bash
+roseus euslisp/decopin_hand_interface.l
+(decopin-hand-init)
+(send *ri* :angle-vector (send *robot* :reset-pose))
+```
+
+```bash
+## This version do not use euslisp modle and robot-interface.
 roseus euslisp/decopin-interface.l
 (decopin-init)
 (send *ri* :angle-vector (send *robot* :reset-pose))
