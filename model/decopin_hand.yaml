@@ -1,0 +1,37 @@
+##
+## - collada_joint_name : euslisp_joint_name (start with :)
+##
+
+## candidates of limbs {"torso", "larm", "rarm", "lleg", "rleg", "head"}
+rarm:
+  - fixed_finger_middle_joint         : ffinger-middle
+  # - fixed_finger_tip_joint            : ffinger-tip
+  - rotated_finger_left_joint         : lfinger-base
+  - rotated_finger_left_middle_joint  : lfinger-middle
+  # - rotated_finger_left_tip_joint     : lfinger-tip
+  # - rotated_finger_right_joint        : rfinger-base
+  - rotated_finger_right_middle_joint : rfinger-middle
+  # - rotated_finger_right_tip_joint    : rfinger-tip
+
+##
+## end-coords
+##
+
+ffinger-end-coords:
+  parent : fixed_finger_tip
+  translate : [0, 0, 0]
+  rotate : [0, 0, 1, 0]
+lfinger-end-coords:
+  parent : rotated_finger_left_tip
+  translate : [0, 0, 0]
+  rotate : [0, 0, 1, 0]
+rfinger-end-coords:
+  parent : rotated_finger_right_tip
+  translate : [0, 0, 0]
+  rotate : [0, 0, 1, 0]
+
+##
+## reset-pose
+##
+angle-vector:
+  reset-pose : [0, 0, 0, 0]

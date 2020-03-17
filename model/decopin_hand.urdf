@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com)
+     Commit Version:   Build Version: 1.5.7377.30466
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="decopin_hand">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.00326666110843798 -0.00336166240876631 0.0343253683259049"
+        rpy="0 0 0" />
+      <mass
+        value="0.162712098324136" />
+      <inertia
+        ixx="0.000123695295505319"
+        ixy="9.75880411617553E-06"
+        ixz="1.10241429732574E-05"
+        iyy="0.000177834113016212"
+        iyz="-3.76890838864753E-07"
+        izz="0.00027106266998108" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="fixed_finger_middle_link">
+    <inertial>
+      <origin
+        xyz="-0.0306733076523489 0.000325931542531605 -0.00509503343899385"
+        rpy="0 0 0" />
+      <mass
+        value="0.012112639618092" />
+      <inertia
+        ixx="7.48148189618447E-07"
+        ixy="-2.04598692501984E-08"
+        ixz="-7.84968236790767E-07"
+        iyy="5.85392057416386E-06"
+        iyz="-3.97525093069152E-09"
+        izz="5.73248139435011E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/fixed_finger_middle_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/fixed_finger_middle_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="fixed_finger_middle_joint"
+    type="continuous">
+    <origin
+      xyz="0.0354 0 0.09685"
+      rpy="-3.1416 0 3.1416" />
+    <parent
+      link="base_link" />
+    <child
+      link="fixed_finger_middle_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="fixed_finger_tip_link">
+    <inertial>
+      <origin
+        xyz="-0.0308095655488988 -0.000135001005162033 -0.00432203367129749"
+        rpy="0 0 0" />
+      <mass
+        value="0.00796134948914291" />
+      <inertia
+        ixx="3.1367201557978E-07"
+        ixy="-5.43567724121795E-14"
+        ixz="2.42289633106898E-08"
+        iyy="2.28288008547019E-06"
+        iyz="5.60111423921652E-14"
+        izz="2.25235140954179E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/fixed_finger_tip_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/fixed_finger_tip_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="fixed_finger_tip_joint"
+    type="continuous">
+    <origin
+      xyz="-0.0625 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="fixed_finger_middle_link" />
+    <child
+      link="fixed_finger_tip_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="rotated_finger_left_link">
+    <inertial>
+      <origin
+        xyz="-0.000247288229964737 0.00779698793777467 -0.000909492176570659"
+        rpy="0 0 0" />
+      <mass
+        value="0.00878951115455076" />
+      <inertia
+        ixx="1.75051397031089E-06"
+        ixy="-1.36063225734903E-08"
+        ixz="2.542215040028E-09"
+        iyy="1.55567461519624E-06"
+        iyz="9.21622021312072E-08"
+        izz="1.13732977908584E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/rotated_finger_left_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/rotated_finger_left_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rotated_finger_left_joint"
+    type="continuous">
+    <origin
+      xyz="-0.035 0.026 0.078455"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="rotated_finger_left_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="rotated_finger_left_middle_link">
+    <inertial>
+      <origin
+        xyz="-0.0310934440888702 0.00032593154256072 -9.43545005337026E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.0121126396180919" />
+      <inertia
+        ixx="6.27871945484722E-07"
+        ixy="-2.08328884779786E-08"
+        ixz="4.70306335442706E-08"
+        iyy="5.85392057416386E-06"
+        iyz="-6.32160706835151E-10"
+        izz="5.85275763848377E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/rotated_finger_left_middle_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/rotated_finger_left_middle_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rotated_finger_left_middle_joint"
+    type="continuous">
+    <origin
+      xyz="0 0.018945 0"
+      rpy="1.5708 0 0" />
+    <parent
+      link="rotated_finger_left_link" />
+    <child
+      link="rotated_finger_left_middle_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="rotated_finger_left_tip_link">
+    <inertial>
+      <origin
+        xyz="-0.0220280704974958 -0.000135000904401633 0.000641289162772191"
+        rpy="0 0 0" />
+      <mass
+        value="0.0079613496369525" />
+      <inertia
+        ixx="3.13671999050527E-07"
+        ixy="-4.36310714124826E-14"
+        ixz="2.42289611052509E-08"
+        iyy="2.28288010267857E-06"
+        iyz="4.80388888860962E-14"
+        izz="2.25235143228842E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/rotated_finger_left_tip_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/rotated_finger_left_tip_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rotated_finger_left_tip_joint"
+    type="continuous">
+    <origin
+      xyz="-0.0625 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="rotated_finger_left_middle_link" />
+    <child
+      link="rotated_finger_left_tip_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="rotated_finger_right_link">
+    <inertial>
+      <origin
+        xyz="-0.000247288698424053 0.00779698792537886 -0.000909491526077805"
+        rpy="0 0 0" />
+      <mass
+        value="0.00878951022046176" />
+      <inertia
+        ixx="1.75051392590883E-06"
+        ixy="-1.36063275650061E-08"
+        ixz="2.5421849656863E-09"
+        iyy="1.55567453104469E-06"
+        iyz="9.21622214720096E-08"
+        izz="1.13732975816502E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/rotated_finger_right_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/rotated_finger_right_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rotated_finger_right_joint"
+    type="continuous">
+    <origin
+      xyz="-0.035 -0.026 0.078455"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="rotated_finger_right_link" />
+    <axis
+      xyz="0 1 0" />
+    <mimic
+      joint="rotated_finger_left_joint"
+      multiplier="-1"
+      offset="0" />
+  </joint>
+  <link
+    name="rotated_finger_right_middle_link">
+    <inertial>
+      <origin
+        xyz="-0.031093444095827 0.000325931552869668 -9.43544918970973E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.0121126396388824" />
+      <inertia
+        ixx="6.27871946908534E-07"
+        ixy="-2.08328858292897E-08"
+        ixz="4.70306350736866E-08"
+        iyy="5.85392057604089E-06"
+        iyz="-6.32159130736594E-10"
+        izz="5.85275764015695E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/rotated_finger_right_middle_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/rotated_finger_right_middle_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rotated_finger_right_middle_joint"
+    type="continuous">
+    <origin
+      xyz="0 0.018945 0"
+      rpy="1.5708 0 0" />
+    <parent
+      link="rotated_finger_right_link" />
+    <child
+      link="rotated_finger_right_middle_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="rotated_finger_right_tip_link">
+    <inertial>
+      <origin
+        xyz="-0.0220280712315673 -0.000135000758624521 0.000641289485322272"
+        rpy="0 0 0" />
+      <mass
+        value="0.00796134910571186" />
+      <inertia
+        ixx="3.13671991421556E-07"
+        ixy="-4.57241820260078E-14"
+        ixz="2.42289456029643E-08"
+        iyy="2.28288003893026E-06"
+        iyz="4.73975544490113E-14"
+        izz="2.25235135554214E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/rotated_finger_right_tip_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://decopin_hand/model/meshes/rotated_finger_right_tip_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rotated_finger_right_tip_joint"
+    type="continuous">
+    <origin
+      xyz="-0.0625 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="rotated_finger_right_middle_link" />
+    <child
+      link="rotated_finger_right_tip_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+</robot>
