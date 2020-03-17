@@ -371,7 +371,7 @@
       xyz="0 1 0" />
     <mimic
       joint="rotated_finger_left_joint"
-      multiplier="1"
+      multiplier="-1"
       offset="0" />
   </joint>
   <link
