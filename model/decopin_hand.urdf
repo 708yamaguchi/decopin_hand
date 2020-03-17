@@ -205,7 +205,7 @@
     <child
       link="rotated_finger_left_link" />
     <axis
-      xyz="0 -1 0" />
+      xyz="0 1 0" />
   </joint>
   <link
     name="rotated_finger_left_middle_link">
@@ -425,7 +425,7 @@
     <child
       link="rotated_finger_right_middle_link" />
     <axis
-      xyz="0 -1 0" />
+      xyz="0 1 0" />
   </joint>
   <link
     name="rotated_finger_right_tip_link">
