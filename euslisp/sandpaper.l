@@ -7,9 +7,9 @@
 
 ;; horizontal
 (dotimes (i 3)
-  (send *ri* :angle-vector (send *fetch* :rarm :move-end-pos #f(0 50 -10) :world :use-torso nil) 3000)
+  (send *ri* :angle-vector (send *fetch* :rarm :move-end-pos #f(0 50 0) :world :use-torso nil) 3000)
   (send *ri* :wait-interpolation)
-  (send *ri* :angle-vector (send *fetch* :rarm :move-end-pos #f(0 -50 10) :world :use-torso nil) 3000)
+  (send *ri* :angle-vector (send *fetch* :rarm :move-end-pos #f(0 -50 0) :world :use-torso nil) 3000)
   (send *ri* :wait-interpolation)
   (unix:usleep 1)
   )
