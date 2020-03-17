@@ -1,6 +1,7 @@
 #!/usr/bin/env roseus
 
-;; Before using this script
+;; Before using this script, please create euslisp model
+;; based on README.md
 
 (load "package://euscollada/src/euscollada-robot.l")
 (load "package://decopin_hand/euslisp/decopin_hand.l")

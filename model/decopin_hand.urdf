@@ -95,7 +95,7 @@
     <child
       link="fixed_finger_middle_link" />
     <axis
-      xyz="0 1 0" />
+      xyz="0 -1 0" />
   </joint>
   <link
     name="fixed_finger_tip_link">
@@ -149,6 +149,10 @@
       link="fixed_finger_tip_link" />
     <axis
       xyz="0 1 0" />
+    <mimic
+      joint="fixed_finger_middle_joint"
+      multiplier="-1"
+      offset="0" />
   </joint>
   <link
     name="rotated_finger_left_link">
@@ -201,7 +205,7 @@
     <child
       link="rotated_finger_left_link" />
     <axis
-      xyz="0 1 0" />
+      xyz="0 -1 0" />
   </joint>
   <link
     name="rotated_finger_left_middle_link">
@@ -254,7 +258,7 @@
     <child
       link="rotated_finger_left_middle_link" />
     <axis
-      xyz="0 1 0" />
+      xyz="0 -1 0" />
   </joint>
   <link
     name="rotated_finger_left_tip_link">
@@ -308,6 +312,10 @@
       link="rotated_finger_left_tip_link" />
     <axis
       xyz="0 1 0" />
+    <mimic
+      joint="rotated_finger_left_middle_joint"
+      multiplier="-1"
+      offset="0" />
   </joint>
   <link
     name="rotated_finger_right_link">
@@ -363,7 +371,7 @@
       xyz="0 1 0" />
     <mimic
       joint="rotated_finger_left_joint"
-      multiplier="-1"
+      multiplier="1"
       offset="0" />
   </joint>
   <link
@@ -417,7 +425,7 @@
     <child
       link="rotated_finger_right_middle_link" />
     <axis
-      xyz="0 1 0" />
+      xyz="0 -1 0" />
   </joint>
   <link
     name="rotated_finger_right_tip_link">
@@ -471,5 +479,9 @@
       link="rotated_finger_right_tip_link" />
     <axis
       xyz="0 1 0" />
+    <mimic
+      joint="rotated_finger_right_middle_joint"
+      multiplier="-1"
+      offset="0" />
   </joint>
 </robot>
