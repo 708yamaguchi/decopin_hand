@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # based on https://github.com/jsk-ros-pkg/jsk_3rdparty/blob/master/respeaker_ros/scripts/respeaker_node.py
+# To use SPH0645LM4H on Raspberry Pi
+# datasheet: https://cdn-shop.adafruit.com/product-files/3421/i2S+Datasheet.PDF
 
 from contextlib import contextmanager
 import numpy as np
@@ -35,7 +37,7 @@ def ignore_stderr(enable=True):
     else:
         yield
 
-class AudioCapturePyaudio(object):
+class SPH0645Audio(object):
     def __init__(self, channel=0, suppress_error=True):
         try:
             self.stop()
@@ -45,7 +47,7 @@ class AudioCapturePyaudio(object):
             self.pyaudio = pyaudio.PyAudio()
         self.name = rospy.get_param('~name', 'snd_rpi_simple_card')
         self.rate = int(rospy.get_param('~rate', '44100'))
-        # bit depth is assumed as 16 (paInt16)
+        # bit depth is assumed as 32 (paInt32). This is based on SPH0645LM4H.
         self.channels = None
         self.channel = channel
         self.device_index = None
@@ -72,8 +74,8 @@ class AudioCapturePyaudio(object):
 
         self.channel = min(self.channels - 1, max(0, self.channel))
         self.stream = self.pyaudio.open(
-            input=True, start=False,
-            format=pyaudio.paInt16,
+            input=True, start=False, output=False,
+            format=pyaudio.paInt32,
             channels=self.channels,
             rate=self.rate,
             frames_per_buffer=1024,
@@ -97,7 +99,9 @@ class AudioCapturePyaudio(object):
 
     def stream_callback(self, in_data, frame_count, time_info, status):
         # split channel
-        data = np.fromstring(in_data, dtype=np.int16)
+        data = np.fromstring(in_data, np.int32)
+        data = data >> 14; # This 18bit integer is raw data from microphone
+        data = (data >> 2).astype(np.int16)
         chunk_per_channel = len(data) / self.channels
         data = np.reshape(data, (chunk_per_channel, self.channels))
         chan_data = data[:, self.channel]
@@ -116,5 +120,5 @@ class AudioCapturePyaudio(object):
 
 if __name__ == '__main__':
     rospy.init_node('audio_capture_microphone', anonymous=True)
-    n = AudioCapturePyaudio()
+    s = SPH0645Audio()
     rospy.spin()
