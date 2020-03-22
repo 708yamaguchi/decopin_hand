@@ -1,6 +1,11 @@
 <launch>
 
   <arg name="use_rosbag" default="false" />
+  <arg name="use_microphone" default="false" />
+  <arg name="save_noise" default="false" />
+  <arg name="save_action" default="true" />
+  <arg name="target_class" default="no_action" />
+
   <group if="$(arg use_rosbag)" >
     <arg name="filename" />
     <param name="use_sim_time" value="true" />
@@ -10,13 +15,15 @@
   </group>
 
   <!-- if you want to publish /audio from microphone -->
-  <!-- <include file="$(find audio_capture)/launch/capture.launch" > -->
-  <!--   <arg name="device" value="hw:2,0" /> -->
-  <!--   <arg name="channels" value="1" /> -->
-  <!--   <arg name="sample_rate" value="44100" /> -->
-  <!--   <arg name="format" value="wave" /> -->
-  <!--   <arg name="ns" value="/" /> -->
-  <!-- </include> -->
+  <group if="$(arg use_microphone)" >
+    <include file="$(find audio_capture)/launch/capture.launch" >
+      <arg name="device" value="hw:2,0" />
+      <arg name="channels" value="1" />
+      <arg name="sample_rate" value="44100" />
+      <arg name="format" value="wave" />
+      <arg name="ns" value="/" />
+    </include>
+  </group>
 
   <!-- convert audio topic to spectrum topic -->
   <node pkg="jsk_perception" type="audio_to_spectrum.py" name="audio_to_spectrum" respawn="true">
@@ -27,19 +34,19 @@
       fft_sampling_period: 0.1
       bitdepth: 16
       high_cut_freq: 20000
-      low_cut_freq: 1
+      low_cut_freq: 20
       fft_exec_rate: 50
     </rosparam>
   </node>
 
-  <!-- convert spectrum topic to spectrogram topic -->
+  <!-- convert raw spectrum topic to raw spectrogram topic -->
   <node pkg="jsk_perception" type="spectrum_to_spectrogram.py" name="spectrum_to_spectrogram" respawn="true">
     <remap from="~spectrum" to="/audio_to_spectrum/spectrum_filtered" />
     <rosparam>
       <!-- meaning of rosparams below are described in spectrum_to_spectrogram.py -->
       image_height: 300
       image_width: 300
-      spectrogram_period: 1
+      spectrogram_period: 0.2
     </rosparam>
   </node>
 
@@ -48,15 +55,47 @@
   <!--   <remap from="~spectrum" to="/audio_to_spectrum/spectrum_filtered" /> -->
   <!-- </node> -->
 
+  <!-- Collect noise spectrum (no_action spectrum)
+       which is used for both action detection and noise subtraction -->
+  <node if="$(arg save_noise)" pkg="decopin_hand" type="noise_saver.py" name="noise_saver" output="screen">
+    <remap from="~raw_spectrogram" to="/spectrum_to_spectrogram/spectrogram" />
+    <rosparam subst_value="true">
+      save_data_rate: 10 <!-- related to fft_sampling_period ? -->
+    </rosparam>
+  </node>
+
+  <node pkg="decopin_hand" type="noise_subtractor.py" name="noise_subtractor" output="screen">
+    <remap from="~raw_spectrogram" to="/spectrum_to_spectrogram/spectrogram" />
+  </node>
+
+  <node pkg="decopin_hand" type="action_detector.py" name="action_detector" output="screen">
+    <remap from="~raw_spectrogram" to="/spectrum_to_spectrogram/spectrogram" />
+    <rosparam subst_value="true">
+      anormal_threshold: 3000
+    </rosparam>
+  </node>
+
   <!-- visualize spectrogram -->
   <!-- you can get spectrogram image topic from /spectrogram_view/output-->
-  <node pkg="image_view" type="image_view" name="spectrogram_view"  >
-    <remap from="image" to="/spectrum_to_spectrogram/spectrogram" />
+  <node pkg="image_view" type="image_view" name="subtracted_spectrogram_to_jet"  >
+    <remap from="image" to="/noise_subtractor/subtracted_spectrogram" />
     <rosparam>
       <!-- set all pixels between 0 and 255 -->
       do_dynamic_scaling: true
       <!-- use jet colormap -->
       colormap: 2
+    </rosparam>
+  </node>
+
+  <!-- Publish whether the robot is in action or not to rostopic, by MT method. -->
+  <!-- Collect spectrogram with action class, only when the robot is in action. -->
+  <node if="$(arg save_action)" pkg="decopin_hand" type="action_saver.py" name="action_saver" output="screen">
+    <remap from="~in_action" to="/action_detector/in_action" />
+    <remap from="~subtracted_spectrogram_jet" to="/subtracted_spectrogram_to_jet/output" />
+    <rosparam subst_value="true">
+      <!-- params below is enabled only when save_data is true -->
+      save_data_rate: 10 <!-- related to fft_sampling_period ? -->
+      target_class: $(arg target_class)
     </rosparam>
   </node>
 
