@@ -1,0 +1,17 @@
+<launch>
+
+  <arg name="use_rosbag" default="false" />
+  <arg name="filename" />
+  <arg name="target_class" />
+  <arg name="save_when_action" default="false"/>
+
+  <include file="$(decopin_hand)/launch/audio_to_spectrogram.launch" >
+    <arg name="use_rosbag" value="$(arg use_rosbag)" />
+    <arg name="filename" value="$(arg filename)" />
+    <arg name="save_noise" value="false" />
+    <arg name="save_action" value="true" />
+    <arg name="target_class" value="$(arg target_class)" />
+    <arg name="save_when_action" value="$(arg save_when_action)" />
+  </include>
+
+</launch>

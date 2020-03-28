@@ -4,6 +4,7 @@
   <arg name="use_microphone" default="false" />
   <arg name="save_noise" default="false" />
   <arg name="save_action" default="true" />
+  <arg name="save_when_action" default="true" />
   <arg name="target_class" default="no_action" />
 
   <group if="$(arg use_rosbag)" >
@@ -96,6 +97,7 @@
       <!-- params below is enabled only when save_data is true -->
       save_data_rate: 10 <!-- related to fft_sampling_period ? -->
       target_class: $(arg target_class)
+      save_when_action: $(arg save_when_action)
     </rosparam>
   </node>
 

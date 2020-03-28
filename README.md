@@ -1,7 +1,7 @@
 decopin_hand
 ============
 
-## Usage
+## Control hand
 1. Build `jsk_model_tools` including [this pull request](https://github.com/jsk-ros-pkg/jsk_model_tools/pull/225) to add mimic joint.
 
 2. Create euslisp model.
@@ -37,3 +37,43 @@ roseus euslisp/decopin-interface.l
 (decopin-init)
 (send *ri* :angle-vector (send *robot* :reset-pose))
 ```
+
+[TEMP] Please see https://github.com/708yamaguchi/sound_classification/blob/master/README.md
+それぞれの用途専用のroslaunchを作っておく。そのほうがわかりやすい。
+## Vibration recognition
+To all launch files, `use_rosbag` and `filename` arguments can be passed to use rosbag.
+
+1. Record noise to `train_data/noise.npy`
+```
+roslaunch decopin_hand record_noise.launch
+```
+
+2. Record action spectrograms to `train_data/original_spectrogram/(target_class)`.
+```
+# For action spectrograms
+roslaunch decopin_hand record_action.launch target_class:=hit_pen save_when_action:=true
+# For non action spectrograms
+roslaunch decopin_hand record_action.launch target_class:=no_action save_when_action:=false
+```
+
+3. Create dateaset for chainer from recorded spectrograms. `--number 100` means to use maximum 100 images for each class in dataset.
+```
+rosrun decopin_hand create_dataset.py --number 100
+```
+
+4. Visualize dataset. use `train` for train dataset, `test` for test dataset
+```
+rosrun decopin_hand visualize_dataset.py train # train/test
+```
+
+5. Train with dataset and pretrained weights. First time you run this script, pretrained weights of VGG16 is downloaded to `scripts/VGG_ILSVRC_16_layers.npz`.
+```
+rosrun decopin_hand train.py
+```
+
+## Requirements
+For python 2.x, following packages work:
+- imageio==2.6.0 (require for imgaug)
+- imgaug==0.4.0
+- chainer==6.7.0
+- cupy-cuda101==6.7.0

@@ -1,0 +1,13 @@
+<launch>
+
+  <arg name="use_rosbag" default="false" />
+  <arg name="filename" />
+
+  <include file="$(decopin_hand)/launch/audio_to_spectrogram.launch" >
+    <arg name="use_rosbag" value="$(arg use_rosbag)" />
+    <arg name="filename" value="$(arg filename)" />
+    <arg name="save_noise" value="true" />
+    <arg name="save_action" value="false" />
+  </include>
+
+</launch>
