@@ -1,3 +1,5 @@
+# Mainly copied from https://github.com/jsk-ros-pkg/jsk_recognition/blob/master/jsk_recognition_utils/python/jsk_recognition_utils/chainermodels/vgg16_batch_normalization.py
+
 import chainer
 import chainer.functions as F
 import chainer.links as L

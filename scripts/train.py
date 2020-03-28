@@ -46,7 +46,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         description='Learning convnet from ILSVRC2012 dataset')
-    parser.add_argument('--epoch', '-E', type=int, default=10,
+    parser.add_argument('--epoch', '-E', type=int, default=100,
                         help='Number of epochs to train')
     parser.add_argument('--gpu', '-g', type=int, default=0,
                         help='GPU ID (negative value indicates CPU)')
@@ -75,8 +75,8 @@ def main():
     # Initialize the model to train
     print('Device: {}'.format(device))
     print('Dtype: {}'.format(chainer.config.dtype))
-    print('# Minibatch-size: {}'.format(batchsize))
-    print('# epoch: {}'.format(args.epoch))
+    print('Minibatch-size: {}'.format(batchsize))
+    print('epoch: {}'.format(args.epoch))
     print('')
 
     n_class = 0
@@ -92,11 +92,11 @@ def main():
         caffemodel = CaffeFunction(path_caffemodel)
         npz.save_npz(model_path, caffemodel, compression=False)
 
-    # TODO: add disable_update to original vgg16 layers
     vgg16 = VGG16Layers(pretrained_model=model_path)
     print('Load model from {}'.format(model_path))
     for l in model.children():
         if l.name.startswith('conv'):
+            # l.disable_update()  # Comment-in for transfer learning, comment-out for fine tuning
             l1 = getattr(vgg16, l.name)
             l2 = getattr(model, l.name)
             assert l1.W.shape == l2.W.shape
@@ -138,8 +138,8 @@ def main():
         train_iter, optimizer, converter=converter, device=device)
     trainer = training.Trainer(updater, (args.epoch, 'epoch'), out)
 
-    val_interval = 100, 'iteration'
-    log_interval = 100, 'iteration'
+    val_interval = 10, 'iteration'
+    log_interval = 10, 'iteration'
 
     trainer.extend(extensions.Evaluator(val_iter, model, converter=converter,
                                         device=device), trigger=val_interval)
