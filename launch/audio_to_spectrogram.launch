@@ -1,6 +1,7 @@
 <launch>
 
   <arg name="use_rosbag" default="false" />
+  <arg name="filename" default="" />
   <arg name="use_microphone" default="false" />
   <arg name="save_noise" default="false" />
   <arg name="save_action" default="true" />
@@ -8,7 +9,6 @@
   <arg name="target_class" default="no_action" />
 
   <group if="$(arg use_rosbag)" >
-    <arg name="filename" />
     <param name="use_sim_time" value="true" />
     <node name="rosbag_play"
           pkg="rosbag" type="play"
