@@ -12,7 +12,8 @@ from chainer.training import extensions
 from chainer.serializers import npz
 
 # from jsk_recognition_utils.chainermodels import VGG16BatchNormalization
-from jsk_recognition_utils.chainermodels import VGG16
+# from jsk_recognition_utils.chainermodels import VGG16
+from vgg16.vgg16_batch_normalization import VGG16BatchNormalization as VGG16
 
 import matplotlib
 import numpy as np
@@ -160,8 +161,6 @@ def main():
     model.to_device(device)
     device.use()
 
-    print(1111111)
-
     # Load mean value of dataset
     mean = np.array(Image_.open(args.mean), np.float32).transpose(
         (2, 0, 1))  # (height, width, channel) -> (channel ,height, width), rgb
@@ -180,8 +179,6 @@ def main():
     # Set up an optimizer
     optimizer = chainer.optimizers.MomentumSGD(lr=0.01, momentum=0.9)
     optimizer.setup(model)
-
-    print(222222)
 
     # Set up a trainer
     updater = training.updaters.StandardUpdater(
@@ -212,8 +209,6 @@ def main():
 
     if args.resume:
         chainer.serializers.load_npz(args.resume, trainer)
-
-    print(333333333)
 
     trainer.run()
 
