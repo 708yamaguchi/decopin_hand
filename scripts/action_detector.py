@@ -30,7 +30,7 @@ class ActionDetector(object):
             makedirs(self.train_dir)
         self.noise_data_path = osp.join(self.train_dir, 'noise.npy')
         if not osp.exists(self.noise_data_path):
-            rospy.logwarn('{} is not found. Exit.'.format(self.noise_data_path))
+            rospy.logerr('{} is not found. Exit.'.format(self.noise_data_path))
             exit()
         no_action_data = np.load(self.noise_data_path)
         # extract about 100 data from no_action_data
