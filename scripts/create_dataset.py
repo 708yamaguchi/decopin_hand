@@ -55,6 +55,8 @@ seq = iaa.Sequential([
 
 rospack = rospkg.RosPack()
 
+image_size = (224, 224)  # for vgg16
+
 
 # Split dataset into train data and test data. The rate is given by --rate.
 def split():
@@ -70,7 +72,7 @@ def split():
     dataset_dir = osp.join(root_dir, 'dataset')
     image_list_train = []
     image_list_test = []
-    mean_of_dataset = np.zeros((256, 256, 3)).astype(np.float32)
+    mean_of_dataset = np.zeros((image_size[0], image_size[1], 3)).astype(np.float32)
     size_of_dataset = 0
 
     if osp.exists(dataset_dir):
@@ -90,7 +92,7 @@ def split():
         for i, file_name in enumerate(file_names):
             saved_file_name = class_name + file_name
             img = Image_.open(osp.join(origin_dir, class_name, file_name))
-            img_resize = img.resize((256, 256))
+            img_resize = img.resize((image_size[0], image_size[1]))
             mean_of_dataset += img_resize
             size_of_dataset += 1
             if i < file_num * rate:  # save data for train
