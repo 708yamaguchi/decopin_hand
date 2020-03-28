@@ -64,11 +64,11 @@
     </rosparam>
   </node>
 
-  <node pkg="decopin_hand" type="noise_subtractor.py" name="noise_subtractor" output="screen">
+  <node unless="$(arg save_noise)" pkg="decopin_hand" type="noise_subtractor.py" name="noise_subtractor" output="screen">
     <remap from="~raw_spectrogram" to="/spectrum_to_spectrogram/spectrogram" />
   </node>
 
-  <node pkg="decopin_hand" type="action_detector.py" name="action_detector" output="screen">
+  <node unless="$(arg save_noise)" pkg="decopin_hand" type="action_detector.py" name="action_detector" output="screen">
     <remap from="~raw_spectrogram" to="/spectrum_to_spectrogram/spectrogram" />
     <rosparam subst_value="true">
       anormal_threshold: 3000
