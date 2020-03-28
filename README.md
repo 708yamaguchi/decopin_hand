@@ -38,8 +38,6 @@ roseus euslisp/decopin-interface.l
 (send *ri* :angle-vector (send *robot* :reset-pose))
 ```
 
-[TEMP] Please see https://github.com/708yamaguchi/sound_classification/blob/master/README.md
-それぞれの用途専用のroslaunchを作っておく。そのほうがわかりやすい。
 ## Vibration recognition
 To all launch files, `use_rosbag` and `filename` arguments can be passed to use rosbag.
 
