@@ -22,12 +22,15 @@
 #                               |- ...
 # dataset -- n_class.txt
 #         |- train_images.txt  # necessary for chainer
-#         |- test_images.txt  # necessary for chainer
+#         |- test_images.txt   # necessary for chainer
 #         |- train_(class)000*.png
 #         |- ...
 #         |- test_(class)000*.png
 #         |- ...
-
+#
+# Total data number
+# train: (number of images per class) * (train:test rate)       * (augment number)
+# test : (number of images per class) * (1 - (train:test rate))
 
 import argparse
 import imgaug as ia
@@ -36,6 +39,7 @@ import numpy as np
 import os
 import os.path as osp
 from PIL import Image as Image_
+import random
 import rospkg
 import shutil
 
@@ -61,12 +65,16 @@ image_size = (224, 224)  # for vgg16
 # Split dataset into train data and test data. The rate is given by --rate.
 def split():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-r', '--rate', default='0.8')  # train:test = 0.8:0.2
+    parser.add_argument('-r', '--rate', default='0.8', type=float,
+                        help='train:test dataset rate (default 0.8:0.2)')
     parser.add_argument('-p', '--path', default=osp.join(rospack.get_path(
-        'decopin_hand'), 'train_data'))
-    parser.add_argument('-a', '--augment', default='5')  # create (augment) images per 1 image
+        'decopin_hand'), 'train_data'), help='path to train data')
+    parser.add_argument('-a', '--augment', default='5', type=int,
+                        help='create {augment} images per 1 image')
+    parser.add_argument('-n', '--number', default='100', type=int,
+                        help='maximum number of images per class used to create dataset')
     args = parser.parse_args()
-    rate = float(args.rate)
+    rate = args.rate
     root_dir = osp.expanduser(args.path)
     origin_dir = osp.join(root_dir, 'original_spectrogram')
     dataset_dir = osp.join(root_dir, 'dataset')
@@ -86,18 +94,19 @@ def split():
     for class_id, class_name in enumerate(classes):
         file_names = os.listdir(osp.join(origin_dir, class_name))
         file_num = len(file_names)
-
         # copy train and test data
         # resize and augment data (multiple args.augment times)
-        for i, file_name in enumerate(file_names):
+        image_num_per_class = min(args.number, file_num)
+        selected_images = random.sample(range(file_num), image_num_per_class)
+        for i, file_name in enumerate(np.array(file_names)[selected_images]):
             saved_file_name = class_name + file_name
             img = Image_.open(osp.join(origin_dir, class_name, file_name))
             img_resize = img.resize((image_size[0], image_size[1]))
             mean_of_dataset += img_resize
             size_of_dataset += 1
-            if i < file_num * rate:  # save data for train
+            if i < image_num_per_class * rate:  # save data for train
                 saved_file_name = 'train_' + saved_file_name
-                for j in range(int(args.augment)):
+                for j in range(args.augment):
                     _ = osp.splitext(saved_file_name)
                     saved_file_name_augmented = _[0] + '_{0:03d}'.format(j) + _[1]
                     img_aug = Image_.fromarray(seq.augment_image(np.array(img_resize)))
