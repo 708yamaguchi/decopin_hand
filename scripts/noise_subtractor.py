@@ -21,7 +21,7 @@ class NoiseSubtractor(object):
             'decopin_hand'), 'train_data')
         self.noise_data_path = osp.join(self.train_dir, 'noise.npy')
         if not osp.exists(self.noise_data_path):
-            rospy.logerr('{} is not found.'.format(self.noise_data_path))
+            rospy.logwarn('{} is not found. Exit.'.format(self.noise_data_path))
             exit()
         noise_data = np.load(self.noise_data_path)
         self.mean_spectrum = np.mean(noise_data, axis=0)
