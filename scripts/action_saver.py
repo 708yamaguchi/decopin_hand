@@ -31,6 +31,7 @@ class ActionSaver(object):
         # ROS
         self.bridge = CvBridge()
         self.save_data_rate = rospy.get_param('~save_data_rate')
+        self.save_when_action = rospy.get_param('~save_when_action')
         self.in_action = False
         self.in_action_sub = rospy.Subscriber('~in_action', Bool, self.in_action_cb)
         self.spectrogram_msg = None
@@ -51,7 +52,9 @@ class ActionSaver(object):
 
         if self.spectrogram_msg is None:
             return
-        if self.in_action is True:
+        if self.save_when_action is True and self.in_action is False:
+            pass
+        else:
             file_num = len(
                 listdir(self.image_save_dir)) + 1  # start from 00001.npy
             file_name = osp.join(
