@@ -26,19 +26,40 @@ matplotlib.use('Agg')  # necessary not to raise Tcl_AsyncDelete Error
 
 class PreprocessedDataset(chainer.dataset.DatasetMixin):
 
-    def __init__(self, path, root, mean, random=True):
-        self.base = chainer.datasets.LabeledImageDataset(path, root)
-        self.mean = mean.astype(chainer.get_dtype())
+    def __init__(self, path=None, random=True):
+        rospack = rospkg.RosPack()
+        # Root directory path of image dataset
+        root = osp.join(rospack.get_path(
+            'decopin_hand'), 'train_data', 'dataset')
+        if path is not None:
+            self.base = chainer.datasets.LabeledImageDataset(path, root)
         self.random = random
+        # how many classes to be classified
+        self.n_class = 0
+        self.target_classes = []
+        with open(osp.join(root, 'n_class.txt'), mode='r') as f:
+            for row in f:
+                self.n_class += 1
+                self.target_classes.append(row)
+        # Load mean image of dataset
+        mean_img_path = osp.join(rospack.get_path('decopin_hand'),
+                                 'train_data', 'dataset', 'mean_of_dataset.png')
+        mean = np.array(Image_.open(mean_img_path), np.float32).transpose(
+            (2, 0, 1))  # (height, width, channel) -> (channel ,height, width), rgb
+        self.mean = mean.astype(chainer.get_dtype())
 
     def __len__(self):
         return len(self.base)
 
     def get_example(self, i):
-        image, label = self.base[i]  # (3, 256, 256), rgb
-        image -= self.mean
-        image *= (1.0 / 255.0)  # Scale to [0, 1.0]
+        image, label = self.base[i]  # (channel ,height, width), rgb
+        image = self.process_image(image)
         return image, label
+
+    def process_image(self, image):
+        ret = image - self.mean  # Subtract mean image, (channel ,height, width), rgb
+        ret *= (1.0 / 255.0)  # Scale to [0, 1.0]
+        return ret
 
 
 def main():
@@ -56,15 +77,9 @@ def main():
     # Configs for train with chainer
     device = chainer.cuda.get_device_from_id(args.gpu)  # for python2
     batchsize = 32
-    # Root directory path of image dataset
-    root = osp.join(rospack.get_path(
-        'decopin_hand'), 'train_data', 'dataset')
     # Output directory of train result
     out = osp.join(rospack.get_path('decopin_hand'),
                    'scripts', 'result')
-    # Path to mean image of dataset
-    mean_img_path = osp.join(rospack.get_path('decopin_hand'),
-                             'train_data', 'dataset', 'mean_of_dataset.png')
     # Path to training image-label list file
     train_labels = osp.join(rospack.get_path('decopin_hand'),
                             'train_data', 'dataset', 'train_images.txt')
@@ -79,11 +94,11 @@ def main():
     print('epoch: {}'.format(args.epoch))
     print('')
 
-    n_class = 0
-    with open(osp.join(root, 'n_class.txt'), mode='r') as f:
-        for row in f:
-            n_class += 1
-    model = VGG16(n_class=n_class)
+    # Load the dataset files
+    train = PreprocessedDataset(train_labels)
+    val = PreprocessedDataset(val_labels, False)
+
+    model = VGG16(n_class=train.n_class)
     model_path = osp.join(rospack.get_path('decopin_hand'), 'scripts', 'VGG_ILSVRC_16_layers.npz')
     if not osp.exists(model_path):
         from chainer.dataset import download
@@ -92,7 +107,7 @@ def main():
         caffemodel = CaffeFunction(path_caffemodel)
         npz.save_npz(model_path, caffemodel, compression=False)
 
-    vgg16 = VGG16Layers(pretrained_model=model_path)
+    vgg16 = VGG16Layers(pretrained_model=model_path)  # original VGG16 model
     print('Load model from {}'.format(model_path))
     for l in model.children():
         if l.name.startswith('conv'):
@@ -114,13 +129,6 @@ def main():
     model.to_device(device)
     device.use()
 
-    # Load mean value of dataset
-    mean = np.array(Image_.open(mean_img_path), np.float32).transpose(
-        (2, 0, 1))  # (height, width, channel) -> (channel ,height, width), rgb
-
-    # Load the dataset files
-    train = PreprocessedDataset(train_labels, root, mean)
-    val = PreprocessedDataset(val_labels, root, mean, False)
     # These iterators load the images with subprocesses running in parallel
     # to the training/validation.
     train_iter = chainer.iterators.MultiprocessIterator(

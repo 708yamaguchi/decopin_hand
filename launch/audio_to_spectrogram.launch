@@ -102,9 +102,9 @@
     </rosparam>
   </node>
 
+
   <!-- Classify actions -->
-  <!-- Copied from: https://github.com/start-jsk/jsk_apc/blob/master/jsk_apc2015_common/launch/vgg16_object_recognition.launch -->
-  <node if="$(arg classify_action)" pkg="jsk_perception" type="vgg16_object_recognition.py" name="action_classifier" >
+  <node if="$(arg classify_action)" pkg="decopin_hand" type="action_classifier.py" name="action_classifier" >
     <remap from="~input" to="/subtracted_spectrogram_to_jet/output" />
     <rosparam subst_value="true">
       gpu: 0

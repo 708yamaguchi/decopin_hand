@@ -69,6 +69,11 @@ rosrun decopin_hand visualize_dataset.py train # train/test
 rosrun decopin_hand train.py
 ```
 
+6. Classify actions online.
+```
+roslaunch decopin_hand classify_action.launch
+```
+
 ## Requirements
 For python 2.x, following packages work:
 - imageio==2.6.0 (require for imgaug)
