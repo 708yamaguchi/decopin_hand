@@ -4,9 +4,10 @@
   <arg name="filename" default="" />
   <arg name="use_microphone" default="false" />
   <arg name="save_noise" default="false" />
-  <arg name="save_action" default="true" />
-  <arg name="save_when_action" default="true" />
+  <arg name="save_action" default="false" />
+  <arg name="save_when_action" default="false" />
   <arg name="target_class" default="no_action" />
+  <arg name="classify_action" default="false" />
 
   <group if="$(arg use_rosbag)" >
     <param name="use_sim_time" value="true" />
@@ -100,5 +101,32 @@
       save_when_action: $(arg save_when_action)
     </rosparam>
   </node>
+
+  <!-- Classify actions -->
+  <!-- Copied from: https://github.com/start-jsk/jsk_apc/blob/master/jsk_apc2015_common/launch/vgg16_object_recognition.launch -->
+  <node if="$(arg classify_action)" pkg="jsk_perception" type="vgg16_object_recognition.py" name="action_classifier" >
+    <remap from="~input" to="/subtracted_spectrogram_to_jet/output" />
+    <rosparam subst_value="true">
+      gpu: 0
+      model_name: vgg16_batch_normalization
+      model_file: $(find decopin_hand)/scripts/result/model_best.npz
+      target_names:
+        - hit_pen
+        - no_action
+        - trace_human_finger
+    </rosparam>
+  </node>
+
+  <!-- Visualize action classification -->
+  <node if="$(arg classify_action)" name="action_classification_result"
+        pkg="jsk_perception" type="draw_classification_result.py" >
+    <remap from="~input" to="/action_classifier/output" />
+    <remap from="~input/image" to="/subtracted_spectrogram_to_jet/output" />
+  </node>
+
+  <node if="$(arg classify_action)" pkg="image_view" type="image_view" name="classification_result_view"  >
+    <remap from="image" to="/action_classification_result/output" />
+  </node>
+
 
 </launch>

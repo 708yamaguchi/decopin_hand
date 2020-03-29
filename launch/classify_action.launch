@@ -6,9 +6,9 @@
   <include file="$(find decopin_hand)/launch/audio_to_spectrogram.launch" >
     <arg name="use_rosbag" value="$(arg use_rosbag)" />
     <arg name="filename" value="$(arg filename)" />
-    <arg name="save_noise" value="true" />
+    <arg name="save_noise" value="false" />
     <arg name="save_action" value="false" />
-    <arg name="classify_action" value="false" />
+    <arg name="classify_action" value="true" />
   </include>
 
 </launch>

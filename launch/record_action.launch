@@ -10,6 +10,7 @@
     <arg name="filename" value="$(arg filename)" />
     <arg name="save_noise" value="false" />
     <arg name="save_action" value="true" />
+    <arg name="classify_action" value="false" />
     <arg name="target_class" value="$(arg target_class)" />
     <arg name="save_when_action" value="$(arg save_when_action)" />
   </include>
