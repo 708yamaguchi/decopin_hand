@@ -1,4 +1,4 @@
-decopin_hand
+>decopin_hand
 ============
 
 ## Control hand
@@ -46,10 +46,10 @@ To all launch files, `use_rosbag` and `filename` arguments can be passed to use 
 roslaunch decopin_hand record_noise.launch
 ```
 
-2. Record action spectrograms to `train_data/original_spectrogram/(target_class)`.
+2. Record action spectrograms to `train_data/original_spectrogram/(target_class)`. The newly recorded spectrograms are appended to existing spectrograms.
 ```
 # For action spectrograms
-roslaunch decopin_hand record_action.launch target_class:=hit_pen save_when_action:=true
+roslaunch decopin_hand record_action.launch target_class:=(target_class) save_when_action:=true
 # For non action spectrograms
 roslaunch decopin_hand record_action.launch target_class:=no_action save_when_action:=false
 ```
