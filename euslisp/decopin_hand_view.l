@@ -4,7 +4,7 @@
 ;; based on README.md
 
 (load "package://euscollada/src/euscollada-robot.l")
-(load "package://decopin_hand/euslisp/decopin_hand.l")
+(load "package://decopin_hand/euslisp/decopin_hand_utils.l")
 
 (setq *robot* (decopin_hand))
 

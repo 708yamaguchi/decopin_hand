@@ -17,18 +17,19 @@ rarm:
 ## end-coords
 ##
 
-ffinger-end-coords:
-  parent : fixed_finger_tip
-  translate : [0, 0, 0]
+rarm-end-coords:
+# rarm-ffinger-end-coords:
+#   parent : fixed_finger_tip_link
+#   translate : [-0.05, 0, 0]
+#   rotate : [0, 0, 1, 0]
+# rarm-lfinger-end-coords:
+  parent : rotated_finger_left_tip_link
+  translate : [-0.05, 0, 0]
   rotate : [0, 0, 1, 0]
-lfinger-end-coords:
-  parent : rotated_finger_left_tip
-  translate : [0, 0, 0]
-  rotate : [0, 0, 1, 0]
-rfinger-end-coords:
-  parent : rotated_finger_right_tip
-  translate : [0, 0, 0]
-  rotate : [0, 0, 1, 0]
+# rarm-rfinger-end-coords:
+#   parent : rotated_finger_right_tip_link
+#   translate : [0, 0, 0]
+#   rotate : [0, 0, 1, 0]
 
 ##
 ## reset-pose
