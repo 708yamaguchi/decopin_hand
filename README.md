@@ -39,7 +39,7 @@ roseus euslisp/decopin-interface.l
 ```
 
 ## Vibration recognition
-To all launch files, `use_rosbag` and `filename` arguments can be passed to use rosbag.
+To all launch files, `use_rosbag` and `filename` arguments can be passed to use rosbag. By default, rosbag is paused at first. Press 'Space' key on terminal to start playing erosbag.
 
 1. Record noise to `train_data/noise.npy`
 ```

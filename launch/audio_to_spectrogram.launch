@@ -14,7 +14,7 @@
     <param name="use_sim_time" value="true" />
     <node name="rosbag_play"
           pkg="rosbag" type="play"
-          args="$(arg filename) --clock --loop"/>
+          args="$(arg filename) --clock --loop --pause"/>
   </group>
 
   <!-- if you want to publish /audio from microphone -->
