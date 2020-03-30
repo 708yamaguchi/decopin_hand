@@ -64,6 +64,7 @@ class NoiseSaver(object):
             self.spectrums = np.append(self.spectrums,
                                        self.current_spectrum[None],
                                        axis=0)
+        rospy.loginfo('Save {} noise samples.'.format(len(self.spectrums)))
 
 
 if __name__ == '__main__':
