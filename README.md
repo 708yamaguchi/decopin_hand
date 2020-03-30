@@ -53,6 +53,8 @@ roslaunch decopin_hand record_action.launch target_class:=(target_class) save_wh
 # For non action spectrograms
 roslaunch decopin_hand record_action.launch target_class:=no_action save_when_action:=false
 ```
+NOTE\
+`anormal_threshold` argument can be passed. You should set proper threshold, which is effected by size of spectrogram, fft\_exec\_rate ... etc. The higher the threshold is, the harder the spectrograms are saved. You can check whether the threshold is proper by viewing saved spectrograms.
 
 3. Create dateaset for chainer from recorded spectrograms. `--number 100` means to use maximum 100 images for each class in dataset.
 ```

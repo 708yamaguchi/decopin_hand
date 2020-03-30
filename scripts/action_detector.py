@@ -58,14 +58,15 @@ class ActionDetector(object):
         self.current_spectrum = np.average(spectrogram, axis=1)
         # Check whether current spectrogram is in action or not
         spectrum = self.current_spectrum[None]
-        dist = self.mcd.mahalanobis(spectrum)
-        rospy.loginfo(dist)
+        dist = self.mcd.mahalanobis(spectrum)[0]
+        info_message = '(mahalanobis distance, threshold) = ({}, {})'.format(
+            dist, self.anormal_threshold)
         if dist < self.anormal_threshold:
             self.in_action = False
-            rospy.loginfo('No action')
+            rospy.loginfo('No action\n' + info_message + '\n')
         else:
             self.in_action = True
-            rospy.loginfo('######## In action ########')
+            rospy.loginfo('### In action ###\n' + info_message + '\n')
         pub_msg = Bool(data=self.in_action)
         self.pub.publish(pub_msg)
 

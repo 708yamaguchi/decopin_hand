@@ -4,6 +4,7 @@
   <arg name="filename" default="" />
   <arg name="target_class" default="" />
   <arg name="save_when_action" default="false"/>
+  <arg name="anormal_threshold" default="20000" />
 
   <include file="$(find decopin_hand)/launch/audio_to_spectrogram.launch" >
     <arg name="use_rosbag" value="$(arg use_rosbag)" />
@@ -13,6 +14,7 @@
     <arg name="classify_action" value="false" />
     <arg name="target_class" value="$(arg target_class)" />
     <arg name="save_when_action" value="$(arg save_when_action)" />
+    <arg name="anormal_threshold" value="$(arg anormal_threshold)" />
   </include>
 
 </launch>
