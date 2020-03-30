@@ -17,6 +17,8 @@ class ActionDetector(object):
     Publish whether the robot is in action or not to rostopic, by MT method.
 
     NOTE
+    Before starting to detect action, some waiting time is required.
+    This is preparation time to calculate mahalanobis distance.
     Reaction speed for action detection is a bit late
     because spectrum is mean of spectrogram, not right edge of spectrogram
     """
