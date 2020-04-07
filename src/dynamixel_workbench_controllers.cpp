@@ -28,6 +28,7 @@ DynamixelController::DynamixelController()
    wheel_radius_(0.0f),
    is_moving_(false),
    is_teaching_(false),
+   is_moving_prev_(false),
    follow_joint_trajectory_server_(priv_node_handle_, "follow_joint_trajectory_action", false),
    follow_action_initialized_(false)
 {
@@ -534,6 +535,13 @@ void DynamixelController::publishCallback(const ros::TimerEvent&)
     }
   }
 
+  if (is_moving_prev_ == true && is_moving_ == false) {
+    control_msgs::FollowJointTrajectoryResult result;
+    result.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
+    follow_joint_trajectory_server_.setSucceeded(result);
+  }
+  is_moving_prev_ = is_moving_;
+
 #ifdef DEBUG
   ROS_WARN("[publishCallback] diff_secs : %f", ros::Time::now().toSec() - priv_pub_secs);
   priv_pub_secs = ros::Time::now().toSec();
@@ -840,10 +848,6 @@ void DynamixelController::followJointTrajectoryActionGoalCallback()
   trajectoryMsgCallback(msg);
 
   follow_action_initialized_ = true;
-
-  control_msgs::FollowJointTrajectoryResult result;
-  result.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
-  follow_joint_trajectory_server_.setSucceeded(result);
 }
 
 void DynamixelController::followJointTrajectoryActionPreemptCallback()

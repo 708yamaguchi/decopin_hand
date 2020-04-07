@@ -109,6 +109,8 @@ class DynamixelController
   bool is_moving_;
   bool is_teaching_;
 
+  bool is_moving_prev_;
+
   std::map<std::string, uint32_t> teaching_torque_;
   std::map<std::string, uint32_t> playing_torque_;
   std::map<std::string, uint32_t> teaching_current_thre_;
