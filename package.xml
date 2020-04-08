@@ -29,4 +29,7 @@
   <exec_depend>imgaug-pip</exec_depend>
   <!-- for python2.x, use 2.6.x of python-imageio -->
   <exec_depend>python-imageio</exec_depend>
+  <!-- for nanoKONTROL2 -->
+  <exec_depend>python-pygame</exec_depend>
+
 </package>
