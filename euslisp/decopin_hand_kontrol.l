@@ -7,16 +7,15 @@
 
 (defclass decopin-hand-kontrol
   :super propertied-object
-  :slots (can-move- reference-av- current-av- last-moving-time-
-          pushed-button-)
+  :slots (reference-av- current-av- last-moving-time- pushed-button-)
   :documentation
   "
   You can control robot hand fingers via nanoKONTROL2 MIDI.
   There are 4 modes (START, SETUP, MOVING, IDLE), which are managed by state machine.
-  START mode  : You need to move sliders and put SET button
-  SETUP mode  : You can set reference angle-vector by SET button
-  MOVING mode : You can move the fingers by moving sliders. The amount of movement is based on the reference angle-vector.
-  IDLE mode   : Robot fingers do not move, so you can move the sliders freely.
+  START mode  : You need to move sliders and put SET button to set reference angle-vector
+  SETUP mode  : The reference angle-vector is set via this mode. This mode automatically transits into MOVING mode.
+  MOVING mode : You can move the fingers by moving sliders. The amount of movement is based on the reference angle-vector. You can go to IDLE mode by STOP button.
+  IDLE mode   : Robot fingers do not move, so you can move the sliders freely. You can set reference angle-vector by SET button.
   You can see the state transition by rosrun smach_viewer smach_viewer.py
   "
   )
@@ -29,7 +28,6 @@
           (send *ri* :state :potentio-vector :wait-until-update t))
     (setq reference-av- #f(0 0 0 0))
     (setq last-moving-time- nil)
-    (setq can-move- nil)
     (setq pushed-button- :stop) ;; :stop, :start or :setup
     ;; Register subscriber
     (ros::subscribe "/nanokontrol/joy" sensor_msgs::Joy #'send self :joy-cb)
@@ -45,14 +43,8 @@
     (t
      (return-from :idle-func :stay))))
   (:setup-func (&rest args)
-    (cond
-     ((eq pushed-button- :start)
-      (return-from :setup-func :start-pushed))
-     ((eq pushed-button- :setup)
-      (setq reference-av- current-av-)
-      (return-from :setup-func :stay))
-     (t
-      (return-from :setup-func :stay))))
+    (unix:usleep (* 500 1000)) ;; wait only for smach_viewer visualization
+    (return-from :setup-func :auto))
   (:moving-func (&rest args)
     (cond
      ((eq pushed-button- :stop)
@@ -78,8 +70,8 @@
            (buttons (send msg :buttons))
            (set (elt buttons 3))
            (stop (elt buttons 8))
-           (start (elt buttons 9)))
-      (print "joy-cb")
+           (start (elt buttons 9))
+           )
       (setq current-av- (float-vector (elt axes 8) (elt axes 9) (elt axes 10) (elt axes 11)))
       (cond
        ((eq set 1)
@@ -113,7 +105,6 @@
   ;; Set nanoKONTROL interface
   (setq dhk (instance decopin-hand-kontrol :init))
   ;; Set state machine
-  ;; TODO: delete setup mode?
   (setq sm (instance state-machine :init))
   (send sm :add-node (instance state :init :START
                                '(lambda (&rest args) (send dhk :idle-func args))))
@@ -125,8 +116,7 @@
                                '(lambda (&rest args) (send dhk :idle-func args))))
   (send sm :add-transition :START :SETUP :setup-pushed)
   (send sm :add-transition :START :START :stay)
-  (send sm :add-transition :SETUP :MOVING :start-pushed)
-  (send sm :add-transition :SETUP :SETUP :stay)
+  (send sm :add-transition :SETUP :MOVING :auto)
   (send sm :add-transition :MOVING :IDLE :stop-pushed)
   (send sm :add-transition :MOVING :MOVING :stay)
   (send sm :add-transition :IDLE :MOVING :start-pushed)
