@@ -1,0 +1,17 @@
+<launch>
+
+  <arg name="smach_viewer" default="true" />
+
+  <!-- publish joy topic from nanoKONTROL2 -->
+  <node pkg="decopin_hand" type="nanokontrol_joy.py" name="nanokontrol_joy"
+        args="3" respawn="true"/>
+
+  <!-- Move fingers based on the joy topic. State machine is used at state transition control. -->
+  <node pkg="decopin_hand" type="decopin_hand_kontrol.l" name="decopin_hand_kontrol"
+        args="(main)" respawn="true"/>
+
+  <!-- Visualize state transition  -->
+  <node pkg="smach_viewer" type="smach_viewer.py" name="smach_viewer"
+        respawn="true" />
+
+</launch>
