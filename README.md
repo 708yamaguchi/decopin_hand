@@ -1,4 +1,4 @@
->decopin_hand
+decopin_hand
 ============
 
 ## Control hand
@@ -41,23 +41,23 @@ roseus euslisp/decopin-interface.l
 ## Vibration recognition
 To all launch files, `use_rosbag` and `filename` arguments can be passed to use rosbag. By default, rosbag is paused at first. Press 'Space' key on terminal to start playing erosbag.
 
-1. Record noise to `train_data/noise.npy`
+1. Save noise to `train_data/noise.npy`
 ```
-roslaunch decopin_hand record_noise.launch
+roslaunch decopin_hand save_noise.launch
 ```
 
-2. Record action spectrograms to `train_data/original_spectrogram/(target_class)`. The newly recorded spectrograms are appended to existing spectrograms.
+2. Save action spectrograms to `train_data/original_spectrogram/(target_class)`. The newly saveed spectrograms are appended to existing spectrograms.
 ```
 # For action spectrograms
-roslaunch decopin_hand record_action.launch target_class:=(target_class) save_when_action:=true
+roslaunch decopin_hand save_action.launch target_class:=(target_class) save_when_action:=true
 # For non action spectrograms
-roslaunch decopin_hand record_action.launch target_class:=no_action save_when_action:=false
+roslaunch decopin_hand save_action.launch target_class:=no_action save_when_action:=false
 ```
 NOTE
   - `anormal_threshold` argument can be passed. You should set proper threshold, which is effected by size of spectrogram, fft\_exec\_rate ... etc. The higher the threshold is, the harder the spectrograms are saved. You can check whether the threshold is proper by viewing saved spectrograms.
   - Before starting to detect action, some waiting time is required. This is preparation time to calculate mahalanobis distance.
 
-3. Create dateaset for chainer from recorded spectrograms. `--number 100` means to use maximum 100 images for each class in dataset.
+3. Create dateaset for chainer from saved spectrograms. `--number 100` means to use maximum 100 images for each class in dataset.
 ```
 rosrun decopin_hand create_dataset.py --number 100
 ```

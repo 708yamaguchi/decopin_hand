@@ -2,13 +2,8 @@
 
   <arg name="use_rosbag" default="false" />
   <arg name="filename" default="" />
-  <arg name="use_microphone" default="false" />
   <arg name="save_noise" default="false" />
-  <arg name="save_action" default="false" />
-  <arg name="save_when_action" default="false" />
-  <arg name="anormal_threshold" default="" />
-  <arg name="target_class" default="no_action" />
-  <arg name="classify_action" default="false" />
+  <arg name="gui" default="false" />
 
   <group if="$(arg use_rosbag)" >
     <param name="use_sim_time" value="true" />
@@ -18,7 +13,7 @@
   </group>
 
   <!-- if you want to publish /audio from microphone -->
-  <group if="$(arg use_microphone)" >
+  <group unless="$(arg use_rosbag)" >
     <include file="$(find audio_capture)/launch/capture.launch" >
       <arg name="device" value="hw:2,0" />
       <arg name="channels" value="1" />
@@ -28,7 +23,10 @@
     </include>
   </group>
 
-  <!-- convert audio topic to spectrum topic -->
+  <!-- Start: Data conversion -->
+  <!-- audio -> spectrum -> mono spectrogram -> noise subtracted mono spectrogram -> normalized noise subtracted mono spectrogram -->
+
+  <!-- audio -> spectrum -->
   <node pkg="jsk_perception" type="audio_to_spectrum.py" name="audio_to_spectrum" respawn="true">
     <remap from="~audio" to="/audio" />
     <rosparam>
@@ -42,92 +40,100 @@
     </rosparam>
   </node>
 
-  <!-- convert raw spectrum topic to raw spectrogram topic -->
+  <!-- spectrum -> mono spectrogram -->
   <node pkg="jsk_perception" type="spectrum_to_spectrogram.py" name="spectrum_to_spectrogram" respawn="true">
     <remap from="~spectrum" to="/audio_to_spectrum/spectrum_filtered" />
     <rosparam>
       <!-- meaning of rosparams below are described in spectrum_to_spectrogram.py -->
-      image_height: 300
-      image_width: 300
+      image_height: 200
+      image_width: 200
       spectrogram_period: 0.5
     </rosparam>
   </node>
 
-  <!-- visualize spectrum -->
-  <!-- <node pkg="jsk_perception" type="spectrum_plot.py" name="spectrum_plot"  > -->
-  <!--   <remap from="~spectrum" to="/audio_to_spectrum/spectrum_filtered" /> -->
-  <!-- </node> -->
-
-  <!-- Collect noise spectrum (no_action spectrum)
-       which is used for both action detection and noise subtraction -->
-  <node if="$(arg save_noise)" pkg="decopin_hand" type="noise_saver.py" name="noise_saver" output="screen">
-    <remap from="~raw_spectrogram" to="/spectrum_to_spectrogram/spectrogram" />
-    <rosparam subst_value="true">
-      save_data_rate: 10 <!-- related to fft_sampling_period ? -->
-    </rosparam>
-  </node>
-
-  <node unless="$(arg save_noise)" pkg="decopin_hand" type="noise_subtractor.py" name="noise_subtractor" output="screen">
+  <!-- mono spectrogram -> noise subtracted mono spectrogram -->
+  <node unless="$(arg save_noise)"
+        pkg="decopin_hand" type="noise_subtractor.py" name="noise_subtractor" output="screen">
     <remap from="~raw_spectrogram" to="/spectrum_to_spectrogram/spectrogram" />
   </node>
 
-  <node unless="$(arg save_noise)" pkg="decopin_hand" type="action_detector.py" name="action_detector" output="screen">
-    <remap from="~raw_spectrogram" to="/spectrum_to_spectrogram/spectrogram" />
-    <rosparam subst_value="true">
-      anormal_threshold: $(arg anormal_threshold)
-    </rosparam>
+  <!-- noise subtracted mono spectrogram -> normalized noise subtracted mono spectrogram -->
+  <!-- 32FC1 -> 8UC1, 0~255 -->
+  <node pkg="decopin_hand" type="normalize_gray_image.py" name="normalize_gray_image" respawn="true">
+    <remap from="~input" to="/noise_subtractor/subtracted_spectrogram" />
   </node>
 
-  <!-- visualize spectrogram -->
-  <!-- you can get spectrogram image topic from /spectrogram_view/output-->
-  <node pkg="image_view" type="image_view" name="subtracted_spectrogram_to_jet"  >
-    <remap from="image" to="/noise_subtractor/subtracted_spectrogram" />
+  <!-- end: Data conversion -->
+  <!-- audio -> spectrum -> mono spectrogram -> noise subtracted mono spectrogram -> normalized noise subtracted mono spectrogram -->
+
+  <!-- Detect action based on pixel histogram-->
+  <!-- Should we really use color histogram? or we should only use num of pixels of 0 value? -->
+  <node pkg="decopin_hand" type="action_detector_histogram.py"
+        name="action_detector_histogram" respawn="true" output="screen">
+    <remap from="~input" to="/normalize_gray_image/output" />
     <rosparam>
-      <!-- set all pixels between 0 and 255 -->
-      do_dynamic_scaling: true
-      <!-- use jet colormap -->
-      colormap: 2
+      pixel_value_threshold: 10
+      pixel_ratio_threshold: 0.3
+      lazy: false
     </rosparam>
   </node>
 
-  <!-- Publish whether the robot is in action or not to rostopic, by MT method. -->
-  <!-- Collect spectrogram with action class, only when the robot is in action. -->
-  <node if="$(arg save_action)" pkg="decopin_hand" type="action_saver.py" name="action_saver" output="screen">
-    <remap from="~in_action" to="/action_detector/in_action" />
-    <remap from="~subtracted_spectrogram_jet" to="/subtracted_spectrogram_to_jet/output" />
-    <rosparam subst_value="true">
-      <!-- params below is enabled only when save_data is true -->
-      save_data_rate: 10 <!-- related to fft_sampling_period ? -->
-      target_class: $(arg target_class)
-      save_when_action: $(arg save_when_action)
-    </rosparam>
-  </node>
+  <group if="$(arg gui)">
+    <!-- Visualize single channel histogram -->
+    <!-- Copied from jsk_perception/sample/sample_single_channel_histogram.launch -->
+    <node name="single_channel_histogram"
+          pkg="nodelet" type="nodelet"
+          args="standalone jsk_perception/SingleChannelHistogram">
+      <remap from="~input" to="/normalize_gray_image/output"/>
+      <rosparam>
+        use_mask: false
+        hist_size: 100
+      </rosparam>
+    </node>
+    <node name="color_histogram_to_histogram_with_range"
+          pkg="topic_tools" type="transform"
+          args="/single_channel_histogram/output
+                /color_histogram_to_histogram_with_range/output
+                jsk_recognition_msgs/HistogramWithRange
+                &quot;
+                jsk_recognition_msgs.msg.HistogramWithRange(
+                header=m.header,
+                bins=[
+                jsk_recognition_msgs.msg.HistogramWithRangeBin(
+                min_value=i * 255.0 / len(m.histogram),
+                max_value=(i + 1) * 255.0 / len(m.histogram),
+                count=x) for i, x in enumerate(m.histogram)
+                ])
+                &quot;
+                --import jsk_recognition_msgs
+                --wait-for-start"/>
+    <node name="rqt_histogram_plot"
+          pkg="jsk_rqt_plugins" type="rqt_histogram_plot"
+          args="/color_histogram_to_histogram_with_range/output"/>
 
-
-  <!-- Classify actions -->
-  <node if="$(arg classify_action)" pkg="decopin_hand" type="action_classifier.py" name="action_classifier" >
-    <remap from="~input" to="/subtracted_spectrogram_to_jet/output" />
-    <rosparam subst_value="true">
-      gpu: 0
-      model_name: vgg16_batch_normalization
-      model_file: $(find decopin_hand)/scripts/result/model_best.npz
-      target_names:
-        - hit_pen
-        - no_action
-        - trace_human_finger
-    </rosparam>
-  </node>
-
-  <!-- Visualize action classification -->
-  <node if="$(arg classify_action)" name="action_classification_result"
-        pkg="jsk_perception" type="draw_classification_result.py" >
-    <remap from="~input" to="/action_classifier/output" />
-    <remap from="~input/image" to="/subtracted_spectrogram_to_jet/output" />
-  </node>
-
-  <node if="$(arg classify_action)" pkg="image_view" type="image_view" name="classification_result_view"  >
-    <remap from="image" to="/action_classification_result/output" />
-  </node>
-
+    <!-- visualize mono spectrogram with jet colormap-->
+    <node pkg="image_view" type="image_view" name="subtracted_spectrogram_to_jet"  >
+      <remap from="image" to="/noise_subtractor/subtracted_spectrogram" />
+      <rosparam>
+        <!-- set all pixels between 0 and 255 -->
+        do_dynamic_scaling: true
+        <!-- use jet colormap -->
+        colormap: 2
+      </rosparam>
+    </node>
+  </group>
 
 </launch>
+
+<!-- <!-\- visualize spectrum -\-> -->
+<!-- <!-\- <node pkg="jsk_perception" type="spectrum_plot.py" name="spectrum_plot"  > -\-> -->
+<!-- <!-\-   <remap from="~spectrum" to="/audio_to_spectrum/spectrum_filtered" /> -\-> -->
+<!-- <!-\- </node> -\-> -->
+
+<!-- <!-\- Publish whether the robot is in action or not to rostopic, by MT method. -\-> -->
+<!-- <node  pkg="decopin_hand" type="action_detector_mt.py" name="action_detector_mt" output="screen"> -->
+<!--   <remap from="~raw_spectrogram" to="/spectrum_to_spectrogram/spectrogram" /> -->
+<!--   <rosparam subst_value="true"> -->
+<!--     anormal_threshold: $(arg anormal_threshold) -->
+<!--   </rosparam> -->
+<!-- </node> -->

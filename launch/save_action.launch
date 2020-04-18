@@ -1,0 +1,27 @@
+<launch>
+
+  <arg name="use_rosbag" default="false" />
+  <arg name="filename" default="" />
+  <arg name="target_class" default="" />
+  <arg name="save_when_action" default="true"/>
+  <arg name="gui" default="true"/>
+
+  <include file="$(find decopin_hand)/launch/audio_to_spectrogram.launch" >
+    <arg name="use_rosbag" value="$(arg use_rosbag)" />
+    <arg name="filename" value="$(arg filename)" />
+    <arg name="gui" value="$(arg gui)" />
+  </include>
+
+  <!-- Collect spectrogram with action class, only when the robot is in action. -->
+  <node pkg="decopin_hand" type="action_saver.py" name="action_saver" output="screen">
+    <remap from="~in_action" to="/action_detector_histogram/in_action" />
+    <remap from="~input" to="/normalize_gray_image/output" />
+    <rosparam subst_value="true">
+      <!-- params below is enabled only when save_data is true -->
+      save_data_rate: 10 <!-- related to fft_sampling_period ? -->
+      target_class: $(arg target_class)
+      save_when_action: $(arg save_when_action)
+    </rosparam>
+  </node>
+
+</launch>

@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   dynamixel_workbench_msgs
   dynamixel_workbench_toolbox
   cmake_modules
+  message_generation
 )
 
 find_package(Eigen3 REQUIRED)
@@ -50,6 +51,16 @@ endif(NOT ${YAML_CPP_VERSION} VERSION_LESS "0.5")
 # Declare ROS messages, services and actions
 ################################################################################
 
+add_message_files(FILES
+  InAction.msg
+  )
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  )
+
+
 ################################################################################
 ## Declare ROS dynamic reconfigure parameters
 ################################################################################
@@ -59,7 +70,7 @@ endif(NOT ${YAML_CPP_VERSION} VERSION_LESS "0.5")
 ################################################################################
 catkin_package(
  INCLUDE_DIRS include
- CATKIN_DEPENDS roscpp actionlib sensor_msgs geometry_msgs dynamixel_workbench_msgs trajectory_msgs control_msgs dynamixel_workbench_toolbox cmake_modules
+ CATKIN_DEPENDS roscpp actionlib sensor_msgs geometry_msgs dynamixel_workbench_msgs trajectory_msgs control_msgs dynamixel_workbench_toolbox cmake_modules message_runtime
  DEPENDS EIGEN3
 )
 

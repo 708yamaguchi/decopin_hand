@@ -5,6 +5,8 @@ from os import path as osp
 from PIL import Image as Image_
 
 from cv_bridge import CvBridge
+from decopin_hand.msg import InAction
+import message_filters
 import rospkg
 import rospy
 from sensor_msgs.msg import Image
@@ -14,6 +16,7 @@ from std_msgs.msg import Bool
 class ActionSaver(object):
     """
     Collect spectrogram with action class, only when the robot is in action.
+    if save_when_action is False, you can save spectrograms during no action.
     """
 
     def __init__(self):
@@ -33,16 +36,16 @@ class ActionSaver(object):
         self.save_data_rate = rospy.get_param('~save_data_rate')
         self.save_when_action = rospy.get_param('~save_when_action')
         self.in_action = False
-        self.in_action_sub = rospy.Subscriber('~in_action', Bool, self.in_action_cb)
         self.spectrogram_msg = None
-        self.spectrogram_sub = rospy.Subscriber('~subtracted_spectrogram_jet', Image, self.spectrogram_cb)
+        img_sub = message_filters.Subscriber('~input', Image)
+        in_action_sub = message_filters.Subscriber('~in_action', InAction)
+        ts = message_filters.TimeSynchronizer([img_sub, in_action_sub], 1)
+        ts.registerCallback(self._cb)
         rospy.Timer(rospy.Duration(1. / self.save_data_rate), self.timer_cb)
 
-    def in_action_cb(self, msg):
-        self.in_action = msg.data
-
-    def spectrogram_cb(self, msg):
-        self.spectrogram_msg = msg
+    def _cb(self, img, in_action):
+        self.spectrogram_msg = img
+        self.in_action = in_action.in_action
 
     def timer_cb(self, timer):
         """
@@ -59,8 +62,8 @@ class ActionSaver(object):
                 listdir(self.image_save_dir)) + 1  # start from 00001.npy
             file_name = osp.join(
                 self.image_save_dir, '{0:05d}.png'.format(file_num))
-            jet_spectrogram = self.bridge.imgmsg_to_cv2(self.spectrogram_msg)
-            Image_.fromarray(jet_spectrogram[:, :, [2, 1, 0]]).save(file_name)
+            mono_spectrogram = self.bridge.imgmsg_to_cv2(self.spectrogram_msg)
+            Image_.fromarray(mono_spectrogram).save(file_name)
             rospy.loginfo('save spectrogram: ' + file_name)
 
 

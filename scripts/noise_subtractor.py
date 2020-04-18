@@ -37,8 +37,11 @@ class NoiseSubtractor(object):
         """
         spectrogram_raw = self.bridge.imgmsg_to_cv2(msg)
         spectrogram_subtracted = spectrogram_raw.transpose() - self.mean_spectrum
+        # Spectral subtraction method
+        spectrogram_subtracted = np.where(spectrogram_subtracted > 0,
+                                          spectrogram_subtracted,
+                                          self.mean_spectrum * 0.01)
         spectrogram_subtracted = spectrogram_subtracted.transpose()
-
         self.pub.publish(self.bridge.cv2_to_imgmsg(spectrogram_subtracted, msg.encoding))
 
 

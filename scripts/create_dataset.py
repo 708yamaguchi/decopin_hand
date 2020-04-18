@@ -35,6 +35,7 @@
 import argparse
 import imgaug as ia
 import imgaug.augmenters as iaa
+import matplotlib.cm as cm
 import numpy as np
 import os
 import os.path as osp
@@ -60,6 +61,18 @@ seq = iaa.Sequential([
 rospack = rospkg.RosPack()
 
 image_size = (224, 224)  # for vgg16
+
+
+# Convert input to jet image if input is mono image.
+def img_jet(im):
+    img = np.array(im)
+    if len(img.shape) == 2:
+        normalized_img = img / 255.0
+        jet = np.array(cm.jet(1 - normalized_img)[:, :, :3] * 255, np.uint8)
+        jet = jet[:, :, [2, 1, 0]]  # bgr -> rgb
+    else:
+        jet = im
+    return Image_.fromarray(jet)
 
 
 # Split dataset into train data and test data. The rate is given by --rate.
@@ -101,6 +114,7 @@ def split():
         for i, file_name in enumerate(np.array(file_names)[selected_images]):
             saved_file_name = class_name + file_name
             img = Image_.open(osp.join(origin_dir, class_name, file_name))
+            img = img_jet(img)
             img_resize = img.resize((image_size[0], image_size[1]))
             mean_of_dataset += img_resize
             size_of_dataset += 1

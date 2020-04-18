@@ -57,7 +57,7 @@ class NoiseSaver(object):
         if self.spectrogram is None:
             return
         spectrogram = self.bridge.imgmsg_to_cv2(self.spectrogram)
-        self.current_spectrum = np.average(spectrogram, axis=1)
+        self.current_spectrum = np.mean(spectrogram, axis=1)
         if len(self.spectrums) == 0:
             self.spectrums = self.current_spectrum[None]
         else:
