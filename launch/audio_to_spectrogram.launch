@@ -87,7 +87,7 @@
       <remap from="~input" to="/normalize_gray_image/output"/>
       <rosparam>
         use_mask: false
-        hist_size: 100
+        hist_size: 50
       </rosparam>
     </node>
     <node name="color_histogram_to_histogram_with_range"

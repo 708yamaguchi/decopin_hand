@@ -38,10 +38,10 @@ class ActionDetectorHistogram(LazyTransport):
         pub_msg = InAction()
         pub_msg.header = msg.header
         if ratio > self.pixel_ratio_threshold:
-            rospy.loginfo('No action')
+            rospy.logdebug('No action')
             pub_msg.in_action = False
         else:
-            rospy.loginfo('### In action ###')
+            rospy.logdebug('### In action ###')
             pub_msg.in_action = True
         self.pub.publish(pub_msg)
 

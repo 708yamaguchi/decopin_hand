@@ -16,11 +16,13 @@
   <node pkg="decopin_hand" type="action_saver.py" name="action_saver" output="screen">
     <remap from="~in_action" to="/action_detector_histogram/in_action" />
     <remap from="~input" to="/normalize_gray_image/output" />
+    <remap from="~input_raw" to="/spectrum_to_spectrogram/spectrogram" />
     <rosparam subst_value="true">
       <!-- params below is enabled only when save_data is true -->
-      save_data_rate: 10 <!-- related to fft_sampling_period ? -->
+      save_data_rate: 5 <!-- related to spectrogram_period -->
       target_class: $(arg target_class)
       save_when_action: $(arg save_when_action)
+      save_raw_spectrogram: true
     </rosparam>
   </node>
 

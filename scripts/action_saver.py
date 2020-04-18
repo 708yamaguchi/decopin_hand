@@ -7,10 +7,10 @@ from PIL import Image as Image_
 from cv_bridge import CvBridge
 from decopin_hand.msg import InAction
 import message_filters
+import numpy as np
 import rospkg
 import rospy
 from sensor_msgs.msg import Image
-from std_msgs.msg import Bool
 
 
 class ActionSaver(object):
@@ -22,6 +22,7 @@ class ActionSaver(object):
     def __init__(self):
         # Config for saving spectrogram
         target_class = rospy.get_param('~target_class')
+        self.save_raw_spectrogram = rospy.get_param('~save_raw_spectrogram')
         rospack = rospkg.RosPack()
         self.train_dir = osp.join(rospack.get_path(
             'decopin_hand'), 'train_data')
@@ -37,15 +38,30 @@ class ActionSaver(object):
         self.save_when_action = rospy.get_param('~save_when_action')
         self.in_action = False
         self.spectrogram_msg = None
-        img_sub = message_filters.Subscriber('~input', Image)
+        self.spectrogram_raw_msg = None
         in_action_sub = message_filters.Subscriber('~in_action', InAction)
-        ts = message_filters.TimeSynchronizer([img_sub, in_action_sub], 1)
+        img_sub = message_filters.Subscriber('~input', Image)
+        img_raw_sub = message_filters.Subscriber('~input_raw', Image)
+        subs = [in_action_sub, img_sub]
+        if self.save_raw_spectrogram:
+            subs.append(img_raw_sub)
+        ts = message_filters.TimeSynchronizer(subs, 100000)
         ts.registerCallback(self._cb)
         rospy.Timer(rospy.Duration(1. / self.save_data_rate), self.timer_cb)
 
-    def _cb(self, img, in_action):
-        self.spectrogram_msg = img
-        self.in_action = in_action.in_action
+    def _cb(self, *args):
+        in_action = args[0].in_action
+        # rospy.logerr('in_action: {}'.format(in_action))
+        if self.save_when_action is False:
+            in_action = True
+        if in_action:
+            self.spectrogram_msg = args[1]
+            if self.save_raw_spectrogram:
+                self.spectrogram_raw_msg = args[2]
+        else:
+            self.spectrogram_msg = None
+            if self.save_raw_spectrogram:
+                self.spectrogram_raw_msg = None
 
     def timer_cb(self, timer):
         """
@@ -53,10 +69,8 @@ class ActionSaver(object):
         Save spectrogram data at self.save_data_rate
         """
 
-        if self.spectrogram_msg is None:
+        if self.spectrogram_msg is None or self.spectrogram_raw_msg is None:
             return
-        if self.save_when_action is True and self.in_action is False:
-            pass
         else:
             file_num = len(
                 listdir(self.image_save_dir)) + 1  # start from 00001.npy
@@ -64,7 +78,20 @@ class ActionSaver(object):
                 self.image_save_dir, '{0:05d}.png'.format(file_num))
             mono_spectrogram = self.bridge.imgmsg_to_cv2(self.spectrogram_msg)
             Image_.fromarray(mono_spectrogram).save(file_name)
+            # self.spectrogram_msg = None
             rospy.loginfo('save spectrogram: ' + file_name)
+            if self.save_raw_spectrogram:
+                file_name_raw = osp.join(
+                    self.image_save_dir, '{0:05d}_raw.png'.format(file_num))
+                mono_spectrogram_raw = self.bridge.imgmsg_to_cv2(
+                    self.spectrogram_raw_msg, desired_encoding='32FC1')
+                _max = mono_spectrogram_raw.max()
+                _min = mono_spectrogram_raw.min()
+                mono_spectrogram_raw = (mono_spectrogram_raw - _min) / (_max - _min) * 255.0
+                mono_spectrogram_raw = mono_spectrogram_raw.astype(np.uint8)
+                Image_.fromarray(mono_spectrogram_raw).save(file_name_raw)
+                # self.spectrogram_raw_msg = None
+                rospy.loginfo('save spectrogram: ' + file_name_raw)
 
 
 if __name__ == '__main__':

@@ -34,6 +34,7 @@ class NormalizeGrayImage(LazyTransport):
         mono_32fc1 = (mono_32fc1 - _min) / (_max - _min) * 255.0
         mono_8uc1 = mono_32fc1.astype(np.uint8)
         pubmsg = self.bridge.cv2_to_imgmsg(mono_8uc1, encoding='mono8')
+        pubmsg.header = imgmsg.header
         self.pub.publish(pubmsg)
 
 

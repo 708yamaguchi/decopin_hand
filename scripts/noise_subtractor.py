@@ -30,19 +30,25 @@ class NoiseSubtractor(object):
         self.sub = rospy.Subscriber('~raw_spectrogram', Image, self.cb)
         self.pub = rospy.Publisher('~subtracted_spectrogram', Image, queue_size=1)
 
+    def noise_subtract(self, img):
+        spectrogram_subtracted = img.transpose() - self.mean_spectrum
+        # Spectral subtraction method
+        spectrogram_subtracted = np.where(spectrogram_subtracted > 0,
+                                          spectrogram_subtracted,
+                                          self.mean_spectrum * 0.01)
+        spectrogram_subtracted = spectrogram_subtracted.transpose()
+        return spectrogram_subtracted
+
     def cb(self, msg):
         """
         Main process of NoiseSubtractor class
         Publish spectrum which is subtracted by noise spectrum
         """
         spectrogram_raw = self.bridge.imgmsg_to_cv2(msg)
-        spectrogram_subtracted = spectrogram_raw.transpose() - self.mean_spectrum
-        # Spectral subtraction method
-        spectrogram_subtracted = np.where(spectrogram_subtracted > 0,
-                                          spectrogram_subtracted,
-                                          self.mean_spectrum * 0.01)
-        spectrogram_subtracted = spectrogram_subtracted.transpose()
-        self.pub.publish(self.bridge.cv2_to_imgmsg(spectrogram_subtracted, msg.encoding))
+        spectrogram_subtracted = self.noise_subtract(spectrogram_raw)
+        pubmsg = self.bridge.cv2_to_imgmsg(spectrogram_subtracted, msg.encoding)
+        pubmsg.header = msg.header
+        self.pub.publish(pubmsg)
 
 
 if __name__ == '__main__':
