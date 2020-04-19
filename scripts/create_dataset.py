@@ -33,16 +33,17 @@
 # test : (number of images per class) * (1 - (train:test rate))
 
 import argparse
+from process_gray_image import img_jet
 import imgaug as ia
 import imgaug.augmenters as iaa
-import matplotlib.cm as cm
+from PIL import Image as Image_
 import numpy as np
 import os
 import os.path as osp
-from PIL import Image as Image_
 import random
 import rospkg
 import shutil
+
 
 # for data augmentation
 ia.seed(1)
@@ -59,18 +60,6 @@ seq = iaa.Sequential([
 ], random_order=True)  # apply augmenters in random order
 
 rospack = rospkg.RosPack()
-
-
-# Convert input to jet image if input is mono image.
-def img_jet(im):
-    img = np.array(im)
-    if len(img.shape) == 2:
-        normalized_img = img / 255.0
-        jet = np.array(cm.jet(1 - normalized_img)[:, :, :3] * 255, np.uint8)
-        jet = jet[:, :, [2, 1, 0]]  # bgr -> rgb
-    else:
-        jet = im
-    return Image_.fromarray(jet)
 
 
 # Split dataset into train data and test data. The rate is given by --rate.

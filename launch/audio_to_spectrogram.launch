@@ -24,7 +24,7 @@
   </group>
 
   <!-- Start: Data conversion -->
-  <!-- audio -> spectrum -> mono spectrogram -> noise subtracted mono spectrogram -> normalized noise subtracted mono spectrogram -->
+  <!-- audio -> spectrum -> mono spectrogram -> preprocessed mono spectrogram -->
 
   <!-- audio -> spectrum -->
   <node pkg="jsk_perception" type="audio_to_spectrum.py" name="audio_to_spectrum" respawn="true">
@@ -51,26 +51,22 @@
     </rosparam>
   </node>
 
-  <!-- mono spectrogram -> noise subtracted mono spectrogram -->
-  <node unless="$(arg save_noise)"
-        pkg="decopin_hand" type="noise_subtractor.py" name="noise_subtractor" output="screen">
-    <remap from="~raw_spectrogram" to="/spectrum_to_spectrogram/spectrogram" />
+  <!-- mono spectrogram -> preprocessed mono spectrogram -->
+  <!-- 1. Noise subtraction by spectral subtraction method -->
+  <!-- 2. Smooth spectrogram -->
+  <!-- 3. Normalize spectrogram (32FC1 -> 8UC1, make each pixel value 0 ~ 255) -->
+  <node pkg="decopin_hand" type="preprocess_gray_image.py" name="preprocess_gray_image" >
+    <remap from="~input" to="/spectrum_to_spectrogram/spectrogram" />
   </node>
 
-  <!-- noise subtracted mono spectrogram -> normalized noise subtracted mono spectrogram -->
-  <!-- 32FC1 -> 8UC1, 0~255 -->
-  <node pkg="decopin_hand" type="normalize_gray_image.py" name="normalize_gray_image" respawn="true">
-    <remap from="~input" to="/noise_subtractor/subtracted_spectrogram" />
-  </node>
-
+  <!-- audio -> spectrum -> mono spectrogram -> preprocessed mono spectrogram -->
   <!-- end: Data conversion -->
-  <!-- audio -> spectrum -> mono spectrogram -> noise subtracted mono spectrogram -> normalized noise subtracted mono spectrogram -->
 
   <!-- Detect action based on pixel histogram-->
   <!-- Should we really use color histogram? or we should only use num of pixels of 0 value? -->
   <node pkg="decopin_hand" type="action_detector_histogram.py"
         name="action_detector_histogram" respawn="true" output="screen">
-    <remap from="~input" to="/normalize_gray_image/output" />
+    <remap from="~input" to="/preprocess_gray_image/output" />
     <rosparam>
       pixel_value_threshold: 10
       pixel_ratio_threshold: 0.3
@@ -81,7 +77,7 @@
   <group if="$(arg gui)">
     <!-- visualize mono blur spectrogram with jet colormap-->
     <node pkg="image_view" type="image_view" name="subtracted_spectrogram_to_jet"  >
-      <remap from="image" to="/normalize_gray_image/output" />
+      <remap from="image" to="/preprocess_gray_image/output" />
       <rosparam>
         <!-- set all pixels between 0 and 255 -->
         do_dynamic_scaling: true
@@ -95,7 +91,7 @@
     <node name="single_channel_histogram"
           pkg="nodelet" type="nodelet"
           args="standalone jsk_perception/SingleChannelHistogram">
-      <remap from="~input" to="/normalize_gray_image/output"/>
+      <remap from="~input" to="/preprocess_gray_image/output"/>
       <rosparam>
         use_mask: false
         hist_size: 50
