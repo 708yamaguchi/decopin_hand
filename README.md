@@ -77,7 +77,7 @@ rosrun decopin_hand train.py
 roslaunch decopin_hand classify_action.launch
 ```
 
-# Visualize spectrogram processing
+## Visualize spectrogram processing
 1. Save spectrogram and noise data which you want to proces later to `scripts/example` directory
 ```bash
 roslaunch decopin_hand audio_to_spectrogram.launch
@@ -85,9 +85,14 @@ roslaunch decopin_hand audio_to_spectrogram.launch
 rosrun decopin_hand save_example.py input:=/spectrum_to_spectrogram/spectrogram
 ```
 
-3. Reproduce spectrogram processing. Show and save original and processed spectrogram.
+2. Reproduce spectrogram processing. Show and save original and processed spectrogram.
 ```bash
 rosrun decopin_hand process_example.py
+```
+
+3. Show histogram of gray spectrogram.
+```bash
+roslaunch decopin_hand show_histogram image_file:=(gray_spectrogram_path)
 ```
 
 ## Requirements

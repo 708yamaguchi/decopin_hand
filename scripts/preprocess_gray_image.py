@@ -7,13 +7,13 @@ import rospkg
 import rospy
 from sensor_msgs.msg import Image
 from topic_tools import LazyTransport
-from process_gray_image import noise_subtract, smooth_gray_image, normalize_gray_image
+from process_gray_image import spectral_subtract, smooth_gray_image, normalize_gray_image
 
 
 class PreprocessGrayImage(LazyTransport):
     """
     This class is to preprocess gray spectrogram for classifying.
-    1. Noise subtraction by spectral subtraction method
+    1. Spectral subtraction by spectral subtraction method
     2. Smooth spectrogram
     3. Normalize spectrogram (32FC1 -> 8UC1, make each pixel value 0 ~ 255)
     """
@@ -48,7 +48,7 @@ class PreprocessGrayImage(LazyTransport):
     def _process(self, imgmsg):
         raw_img = self.bridge.imgmsg_to_cv2(imgmsg)
         # Noise subtract
-        subtracted_img = noise_subtract(raw_img, self.mean_spectrum)
+        subtracted_img = spectral_subtract(raw_img, self.mean_spectrum)
         # Normalize
         normalized_img = normalize_gray_image(subtracted_img)
         # Smoothing

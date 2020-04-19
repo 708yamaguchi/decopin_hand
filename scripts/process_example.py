@@ -9,7 +9,7 @@ from cv_bridge import CvBridge
 import numpy as np
 import os.path as osp
 import pickle
-from process_gray_image import noise_subtract, smooth_gray_image, normalize_gray_image, img_jet # NOQA
+from process_gray_image import spectral_subtract, smooth_gray_image, normalize_gray_image, img_jet # NOQA
 import rospkg
 
 
@@ -49,12 +49,12 @@ def process_example():
     show_and_save(img_jet(normalized_img),
                   osp.join(example_dir, 'raw_jet.png'))
     # Show and save noise subtracted image
-    img = noise_subtract(img, noise)
+    img = spectral_subtract(img, noise)
     normalized_img = normalize_gray_image(img)
     show_and_save(cv2.cvtColor(normalized_img, cv2.COLOR_GRAY2BGR).astype(np.uint8),
-                  osp.join(example_dir, 'noise_subtracted.png'))
+                  osp.join(example_dir, 'spectral_subtracted.png'))
     show_and_save(img_jet(normalized_img),
-                  osp.join(example_dir, 'noise_subtracted_jet.png'))
+                  osp.join(example_dir, 'spectral_subtracted_jet.png'))
     # Show and save smoothed image
     img = smooth_gray_image(img)
     normalized_img = normalize_gray_image(img)

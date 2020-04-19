@@ -3,7 +3,7 @@ import matplotlib.cm as cm
 import numpy as np
 
 
-def noise_subtract(img, noise):
+def spectral_subtract(img, noise):
     spectrogram_subtracted = img.transpose() - noise
     # Spectral subtraction method
     spectrogram_subtracted = np.where(spectrogram_subtracted > 0,
