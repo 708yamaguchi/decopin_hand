@@ -60,8 +60,6 @@ seq = iaa.Sequential([
 
 rospack = rospkg.RosPack()
 
-image_size = (224, 224)  # for vgg16
-
 
 # Convert input to jet image if input is mono image.
 def img_jet(im):
@@ -84,10 +82,20 @@ def split():
         'decopin_hand'), 'train_data'), help='path to train data')
     parser.add_argument('-a', '--augment', default='5', type=int,
                         help='create {augment} images per 1 image')
+    parser.add_argument('-m', '--model', type=str,
+                        choices=['nin', 'vgg16'], default='nin',
+                        help='Neural network model to use dataset')
     parser.add_argument('-n', '--number', default='100', type=int,
                         help='maximum number of images per class used to create dataset')
     args = parser.parse_args()
     rate = args.rate
+    if args.model == 'nin':
+        image_size = (227, 227)
+    elif args.model == 'vgg16':
+        image_size = (224, 224)
+    else:
+        print('Model type {} is invalid.'.format(args.model))
+        exit()
     root_dir = osp.expanduser(args.path)
     origin_dir = osp.join(root_dir, 'original_spectrogram')
     dataset_dir = osp.join(root_dir, 'dataset')

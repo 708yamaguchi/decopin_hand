@@ -13,7 +13,8 @@ import chainer.backends.cuda
 from chainer.serializers import npz
 from chainer.training import extensions
 
-from vgg16.vgg16_batch_normalization import VGG16BatchNormalization as VGG16
+from nin.nin import NIN
+from vgg16.vgg16_batch_normalization import VGG16BatchNormalization
 
 import matplotlib
 import numpy as np
@@ -62,6 +63,50 @@ class PreprocessedDataset(chainer.dataset.DatasetMixin):
         return ret
 
 
+def load_model(model_name, n_class):
+    archs = {
+        'nin': NIN,
+        'vgg16': VGG16BatchNormalization
+    }
+    model = archs[model_name](n_class=n_class)
+    if model_name == 'nin':
+        pass
+    elif model_name == 'vgg16':
+        rospack = rospkg.RosPack()
+        model_path = osp.join(rospack.get_path('decopin_hand'), 'scripts',
+                              'vgg16', 'VGG_ILSVRC_16_layers.npz')
+        if not osp.exists(model_path):
+            from chainer.dataset import download
+            from chainer.links.caffe.caffe_function import CaffeFunction
+            path_caffemodel = download.cached_download('http://www.robots.ox.ac.uk/%7Evgg/software/very_deep/caffe/VGG_ILSVRC_19_layers.caffemodel')
+            caffemodel = CaffeFunction(path_caffemodel)
+            npz.save_npz(model_path, caffemodel, compression=False)
+
+        vgg16 = VGG16Layers(pretrained_model=model_path)  # original VGG16 model
+        print('Load model from {}'.format(model_path))
+        for l in model.children():
+            if l.name.startswith('conv'):
+                # l.disable_update()  # Comment-in for transfer learning, comment-out for fine tuning
+                l1 = getattr(vgg16, l.name)
+                l2 = getattr(model, l.name)
+                assert l1.W.shape == l2.W.shape
+                assert l1.b.shape == l2.b.shape
+                l2.W.data[...] = l1.W.data[...]
+                l2.b.data[...] = l1.b.data[...]
+            elif l.name in ['fc6', 'fc7']:
+                l1 = getattr(vgg16, l.name)
+                l2 = getattr(model, l.name)
+                assert l1.W.size == l2.W.size
+                assert l1.b.size == l2.b.size
+                l2.W.data[...] = l1.W.data.reshape(l2.W.shape)[...]
+                l2.b.data[...] = l1.b.data.reshape(l2.b.shape)[...]
+    else:
+        print('Model type {} is invalid.'.format(model_name))
+        exit()
+
+    return model
+
+
 def main():
     rospack = rospkg.RosPack()
 
@@ -71,15 +116,15 @@ def main():
                         help='Number of epochs to train')
     parser.add_argument('--gpu', '-g', type=int, default=0,
                         help='GPU ID (negative value indicates CPU)')
+    parser.add_argument('-m', '--model', type=str,
+                        choices=['nin', 'vgg16'], default='nin',
+                        help='Neural network model to use dataset')
 
     args = parser.parse_args()
 
     # Configs for train with chainer
     device = chainer.cuda.get_device_from_id(args.gpu)  # for python2
     batchsize = 32
-    # Output directory of train result
-    out = osp.join(rospack.get_path('decopin_hand'),
-                   'scripts', 'result')
     # Path to training image-label list file
     train_labels = osp.join(rospack.get_path('decopin_hand'),
                             'train_data', 'dataset', 'train_images.txt')
@@ -98,34 +143,7 @@ def main():
     train = PreprocessedDataset(train_labels)
     val = PreprocessedDataset(val_labels, False)
 
-    model = VGG16(n_class=train.n_class)
-    model_path = osp.join(rospack.get_path('decopin_hand'), 'scripts', 'VGG_ILSVRC_16_layers.npz')
-    if not osp.exists(model_path):
-        from chainer.dataset import download
-        from chainer.links.caffe.caffe_function import CaffeFunction
-        path_caffemodel = download.cached_download('http://www.robots.ox.ac.uk/%7Evgg/software/very_deep/caffe/VGG_ILSVRC_19_layers.caffemodel')
-        caffemodel = CaffeFunction(path_caffemodel)
-        npz.save_npz(model_path, caffemodel, compression=False)
-
-    vgg16 = VGG16Layers(pretrained_model=model_path)  # original VGG16 model
-    print('Load model from {}'.format(model_path))
-    for l in model.children():
-        if l.name.startswith('conv'):
-            # l.disable_update()  # Comment-in for transfer learning, comment-out for fine tuning
-            l1 = getattr(vgg16, l.name)
-            l2 = getattr(model, l.name)
-            assert l1.W.shape == l2.W.shape
-            assert l1.b.shape == l2.b.shape
-            l2.W.data[...] = l1.W.data[...]
-            l2.b.data[...] = l1.b.data[...]
-        elif l.name in ['fc6', 'fc7']:
-            l1 = getattr(vgg16, l.name)
-            l2 = getattr(model, l.name)
-            assert l1.W.size == l2.W.size
-            assert l1.b.size == l2.b.size
-            l2.W.data[...] = l1.W.data.reshape(l2.W.shape)[...]
-            l2.b.data[...] = l1.b.data.reshape(l2.b.shape)[...]
-
+    model = load_model(args.model, train.n_class)
     model.to_device(device)
     device.use()
 
@@ -142,6 +160,9 @@ def main():
     optimizer.setup(model)
 
     # Set up a trainer
+    # Output directory of train result
+    out = osp.join(rospack.get_path('decopin_hand'),
+                   'scripts', 'result', args.model)
     updater = training.updaters.StandardUpdater(
         train_iter, optimizer, converter=converter, device=device)
     trainer = training.Trainer(updater, (args.epoch, 'epoch'), out)

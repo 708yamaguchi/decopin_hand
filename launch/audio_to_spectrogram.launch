@@ -79,6 +79,17 @@
   </node>
 
   <group if="$(arg gui)">
+    <!-- visualize mono blur spectrogram with jet colormap-->
+    <node pkg="image_view" type="image_view" name="subtracted_spectrogram_to_jet"  >
+      <remap from="image" to="/normalize_gray_image/output" />
+      <rosparam>
+        <!-- set all pixels between 0 and 255 -->
+        do_dynamic_scaling: true
+        <!-- use jet colormap -->
+        colormap: 2
+      </rosparam>
+    </node>
+
     <!-- Visualize single channel histogram -->
     <!-- Copied from jsk_perception/sample/sample_single_channel_histogram.launch -->
     <node name="single_channel_histogram"
@@ -110,17 +121,6 @@
     <node name="rqt_histogram_plot"
           pkg="jsk_rqt_plugins" type="rqt_histogram_plot"
           args="/color_histogram_to_histogram_with_range/output"/>
-
-    <!-- visualize mono spectrogram with jet colormap-->
-    <node pkg="image_view" type="image_view" name="subtracted_spectrogram_to_jet"  >
-      <remap from="image" to="/noise_subtractor/subtracted_spectrogram" />
-      <rosparam>
-        <!-- set all pixels between 0 and 255 -->
-        do_dynamic_scaling: true
-        <!-- use jet colormap -->
-        colormap: 2
-      </rosparam>
-    </node>
   </group>
 
 </launch>
@@ -129,6 +129,17 @@
 <!-- <!-\- <node pkg="jsk_perception" type="spectrum_plot.py" name="spectrum_plot"  > -\-> -->
 <!-- <!-\-   <remap from="~spectrum" to="/audio_to_spectrum/spectrum_filtered" /> -\-> -->
 <!-- <!-\- </node> -\-> -->
+
+<!-- <!-\- visualize mono spectrogram with jet colormap-\-> -->
+<!-- <node pkg="image_view" type="image_view" name="subtracted_spectrogram_to_jet"  > -->
+<!--   <remap from="image" to="/noise_subtractor/subtracted_spectrogram" /> -->
+<!--   <rosparam> -->
+<!--     <!-\- set all pixels between 0 and 255 -\-> -->
+<!--     do_dynamic_scaling: true -->
+<!--     <!-\- use jet colormap -\-> -->
+<!--     colormap: 2 -->
+<!--   </rosparam> -->
+<!-- </node> -->
 
 <!-- <!-\- Publish whether the robot is in action or not to rostopic, by MT method. -\-> -->
 <!-- <node  pkg="decopin_hand" type="action_detector_mt.py" name="action_detector_mt" output="screen"> -->

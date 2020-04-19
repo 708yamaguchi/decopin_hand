@@ -6,7 +6,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-
 import chainer
 from chainer import cuda
 import chainer.serializers as S
@@ -17,9 +16,9 @@ import skimage.transform
 
 import cv_bridge
 from jsk_recognition_msgs.msg import ClassificationResult
-from jsk_recognition_utils.chainermodels import VGG16
-from jsk_recognition_utils.chainermodels import VGG16BatchNormalization
-from jsk_topic_tools import ConnectionBasedTransport
+from nin.nin import NIN
+from vgg16.vgg16_batch_normalization import VGG16BatchNormalization
+from jsk_topic_tools import ConnectionBasedTransport  # TODO use LazyTransport
 import rospy
 from sensor_msgs.msg import Image
 
@@ -30,14 +29,15 @@ class ActionClassifier(ConnectionBasedTransport):
 
     def __init__(self):
         super(self.__class__, self).__init__()
-        self.insize = 224
         self.gpu = rospy.get_param('~gpu', -1)
         self.dataset = PreprocessedDataset()
         self.target_names = self.dataset.target_classes
         self.model_name = rospy.get_param('~model_name')
-        if self.model_name == 'vgg16':
-            self.model = VGG16(n_class=len(self.target_names))
-        elif self.model_name == 'vgg16_batch_normalization':
+        if self.model_name == 'nin':
+            self.insize = 227
+            self.model = NIN(n_class=len(self.target_names))
+        elif self.model_name == 'vgg16':
+            self.insize = 224
             self.model = VGG16BatchNormalization(
                 n_class=len(self.target_names))
         else:
