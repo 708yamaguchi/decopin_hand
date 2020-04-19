@@ -1,7 +1,6 @@
 import cv2
 import matplotlib.cm as cm
 import numpy as np
-from PIL import Image as Image_
 
 
 def noise_subtract(img, noise):
@@ -17,37 +16,35 @@ def noise_subtract(img, noise):
 def smooth_gray_image(raw_img):
     """
     Blur to gray image
-    input:  cv2 image, 32FC1
-    output: cv2 image, 32FC1
+    input:  cv2 32FC1 image
+    output: cv2 32FC1 image
     """
     return cv2.blur(raw_img, (5, 5))
 
 
-def normalize_gray_image(mono_32fc1):
+def normalize_gray_image(img):
     """
     Convert input gray image to 8FC1 gray image.
     At this time, each pixel is normalized between 0 ~ 255.
-    input:  cv2 image, 32FC1
-    output: cv2 image, 8FC1
+    input:  cv2 image
+    output: cv2 image
     """
-    _max = mono_32fc1.max()
-    _min = mono_32fc1.min()
-    mono_32fc1 = (mono_32fc1 - _min) / (_max - _min) * 255.0
-    mono_8uc1 = mono_32fc1.astype(np.uint8)
-    return mono_8uc1
+    dtype = img.dtype
+    _max = img.max()
+    _min = img.min()
+    ret = (img - _min).astype(np.float64) / (_max - _min) * 255.0
+    return ret.astype(dtype)
 
 
-def img_jet(im):
+def img_jet(img):
     """
     Convert input to jet image if input is mono image.
-    input : PIL 8UC1 image
-    output: PIL 8UC3 image
+    input : cv2 8UC1 image
+    output: cv2 8UC3 image
     """
-    img = np.array(im)
     if len(img.shape) == 2:
         normalized_img = img / 255.0
         jet = np.array(cm.jet(1 - normalized_img)[:, :, :3] * 255, np.uint8)
-        jet = jet[:, :, [2, 1, 0]]  # bgr -> rgb
     else:
-        jet = im
-    return Image_.fromarray(jet)
+        jet = img
+    return jet

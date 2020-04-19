@@ -4,5 +4,6 @@
 *.npz
 train_data/
 result/
+example/
 decopin_hand.l
 decopin_hand.dae

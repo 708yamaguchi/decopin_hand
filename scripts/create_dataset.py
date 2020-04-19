@@ -113,7 +113,8 @@ def split():
                 continue
             saved_file_name = class_name + file_name
             img = Image_.open(osp.join(origin_dir, class_name, file_name))
-            img = img_jet(img)
+            img = img_jet(np.asarray(img))
+            img = Image_.fromarray(img)
             img_resize = img.resize((image_size[0], image_size[1]))
             mean_of_dataset += img_resize
             size_of_dataset += 1

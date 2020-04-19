@@ -34,6 +34,8 @@ class PreprocessGrayImage(LazyTransport):
         # Publisher and Subscriber
         self.bridge = cv_bridge.CvBridge()
         self.pub = self.advertise('~output', Image, queue_size=1)
+        self.pub_without_smoothing = self.advertise(
+            '~output_before_smoothing', Image, queue_size=1)
         self.subscribe()
 
     def subscribe(self):
@@ -47,12 +49,19 @@ class PreprocessGrayImage(LazyTransport):
         raw_img = self.bridge.imgmsg_to_cv2(imgmsg)
         # Noise subtract
         subtracted_img = noise_subtract(raw_img, self.mean_spectrum)
-        # Blur
-        blured_img = smooth_gray_image(subtracted_img)
         # Normalize
-        blured_8uc1_img = normalize_gray_image(blured_img)
+        normalized_img = normalize_gray_image(subtracted_img)
+        # Smoothing
+        blured_img = smooth_gray_image(normalized_img)
+        # 32FC1 -> 8UC1
+        blured_img = blured_img.astype(np.uint8)
         # Publish
-        pubmsg = self.bridge.cv2_to_imgmsg(blured_8uc1_img)
+        # after noise subtraction and before smoothing
+        pubmsg = self.bridge.cv2_to_imgmsg(blured_img)
+        pubmsg.header = imgmsg.header
+        self.pub.publish(pubmsg)
+        # after smoothing
+        pubmsg = self.bridge.cv2_to_imgmsg(blured_img)
         pubmsg.header = imgmsg.header
         self.pub.publish(pubmsg)
 

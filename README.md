@@ -25,13 +25,13 @@ roslaunch decopin_hand dynamixel_workbench_controllers.launch
 
 5. Move dynamixels via roseus
 The robot class is inherited from robot-interface.
-```bash
+```lisp
 roseus euslisp/decopin_hand_interface.l
 (decopin-hand-init)
 (send *ri* :angle-vector (send *robot* :reset-pose))
 ```
 
-```bash
+```lisp
 ## This version do not use euslisp modle and robot-interface.
 roseus euslisp/decopin-interface.l
 (decopin-init)
@@ -42,12 +42,12 @@ roseus euslisp/decopin-interface.l
 To all launch files, `use_rosbag` and `filename` arguments can be passed to use rosbag. By default, rosbag is paused at first. Press 'Space' key on terminal to start playing erosbag.
 
 1. Save noise to `train_data/noise.npy`
-```
+```bash
 roslaunch decopin_hand save_noise.launch
 ```
 
 2. Save action spectrograms to `train_data/original_spectrogram/(target_class)`. The newly saveed spectrograms are appended to existing spectrograms.
-```
+```bash
 # For action spectrograms
 roslaunch decopin_hand save_action.launch target_class:=(target_class) save_when_action:=true
 # For non action spectrograms
@@ -58,23 +58,36 @@ NOTE
   - Before starting to detect action, some waiting time is required. This is preparation time to calculate mahalanobis distance.
 
 3. Create dateaset for chainer from saved spectrograms. `--number 100` means to use maximum 100 images for each class in dataset.
-```
+```bash
 rosrun decopin_hand create_dataset.py --number 100
 ```
 
 4. Visualize dataset. use `train` for train dataset, `test` for test dataset
-```
+```bash
 rosrun decopin_hand visualize_dataset.py train # train/test
 ```
 
 5. Train with dataset and pretrained weights. First time you run this script, pretrained weights of VGG16 is downloaded to `scripts/VGG_ILSVRC_16_layers.npz`.
-```
+```bash
 rosrun decopin_hand train.py
 ```
 
 6. Classify actions online.
-```
+```bash
 roslaunch decopin_hand classify_action.launch
+```
+
+# Visualize spectrogram processing
+1. Save spectrogram and noise data which you want to proces later to `scripts/example` directory
+```bash
+roslaunch decopin_hand audio_to_spectrogram.launch
+# Press key when you want to save spectrogram and noise.
+rosrun decopin_hand save_example.py input:=/spectrum_to_spectrogram/spectrogram
+```
+
+3. Reproduce spectrogram processing. Show and save original and processed spectrogram.
+```bash
+rosrun decopin_hand process_example.py
 ```
 
 ## Requirements
