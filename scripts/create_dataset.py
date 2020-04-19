@@ -112,6 +112,8 @@ def split():
         image_num_per_class = min(args.number, file_num)
         selected_images = random.sample(range(file_num), image_num_per_class)
         for i, file_name in enumerate(np.array(file_names)[selected_images]):
+            if file_name == 'raw':
+                continue
             saved_file_name = class_name + file_name
             img = Image_.open(osp.join(origin_dir, class_name, file_name))
             img = img_jet(img)
