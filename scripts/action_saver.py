@@ -32,6 +32,9 @@ class ActionSaver(object):
             self.train_dir, 'original_spectrogram', target_class)
         if not osp.exists(self.image_save_dir):
             makedirs(self.image_save_dir)
+        self.raw_image_save_dir = osp.join(self.image_save_dir, 'raw')
+        if not osp.exists(self.raw_image_save_dir):
+            makedirs(self.raw_image_save_dir)
         # ROS
         self.bridge = CvBridge()
         self.save_data_rate = rospy.get_param('~save_data_rate')
@@ -82,7 +85,7 @@ class ActionSaver(object):
             rospy.loginfo('save spectrogram: ' + file_name)
             if self.save_raw_spectrogram:
                 file_name_raw = osp.join(
-                    self.image_save_dir, '{0:05d}_raw.png'.format(file_num))
+                    self.raw_image_save_dir, '{0:05d}_raw.png'.format(file_num))
                 mono_spectrogram_raw = self.bridge.imgmsg_to_cv2(
                     self.spectrogram_raw_msg, desired_encoding='32FC1')
                 _max = mono_spectrogram_raw.max()
