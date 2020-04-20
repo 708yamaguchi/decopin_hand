@@ -119,6 +119,8 @@ class SPH0645Audio(object):
 
 
 if __name__ == '__main__':
-    rospy.init_node('audio_capture_microphone', anonymous=True)
+    rospy.init_node('audio_capture_microphone')
     s = SPH0645Audio()
-    rospy.spin()
+    r = rospy.Rate(100)
+    while s.stream.is_active():
+        r.sleep()
