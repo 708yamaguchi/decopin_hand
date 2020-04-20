@@ -45,42 +45,46 @@ To all launch files, `use_rosbag` and `filename` arguments can be passed to use 
 ```bash
 rosrun decopin_hand sph0645_audio.py
 ```
+Then, You can see the spectrograms calculated from `/audio` by `roslaunch decopin_hand audio_to_spectrogram.launch`
 
-1. Save noise to `train_data/noise.npy`
+1. Save noise to `train_data/noise.npy`. By subtracting noise, spectrograms become clear.
 ```bash
 roslaunch decopin_hand save_noise.launch
 ```
 
-2. Save action spectrograms to `train_data/original_spectrogram/(target_class)`. The newly saveed spectrograms are appended to existing spectrograms.
+2. Record rosbag to save aciton spectrograms because we can get train data repeatedly from rosbag.\
+   You can record rosbag by the following commands:
+```bash
+# To record rosbag with /audio topic
+roslaunch decopin_hand audio_to_spectrogram.launch
+roslaunch decopin_hand record_audio_rosbag.launch filename:=$HOME/.ros/rosbag/hoge.bag
+```
+
+3. Save action spectrograms to `train_data/original_spectrogram/(target_class)`. The newly saveed spectrograms are appended to existing spectrograms.\
+   By using `use_rosbag:=true` and `filename:=xxx`, you can save action spectrograms from rosbag. When using rosbag, **DO NOT** publish `/audio` topic from real microphone.
 ```bash
 # For action spectrograms
-roslaunch decopin_hand save_action.launch target_class:=(target_class) save_when_action:=true
+roslaunch decopin_hand save_action.launch target_class:=(target_class) save_when_action:=true # use_rosbag:=true filename:=$HOME/.ros/rosbag/hoge.bag
 # For non action spectrograms
-roslaunch decopin_hand save_action.launch target_class:=no_action save_when_action:=false
+roslaunch decopin_hand save_action.launch target_class:=no_action save_when_action:=false # use_rosbag:=true filename:=$HOME/.ros/rosbag/hoge.bag
 ```
-NOTE
-  - You should use rosbag during save_action.launch because we can get train data repeatedly from rosbag.
-    ```bash
-    # To record rosbag with /audio topic
-    roslaunch decopin_hand record_audio_rosbag.launch filename:=$HOME/.ros/rosbag/hoge.bag
-    ```
 
-3. Create dateaset for chainer from saved spectrograms. `--number 100` means to use maximum 100 images for each class in dataset.
+4. Create dateaset for chainer from saved spectrograms. `--number 100` means to use maximum 100 images for each class in dataset.
 ```bash
 rosrun decopin_hand create_dataset.py --number 100
 ```
 
-4. Visualize dataset. use `train` for train dataset, `test` for test dataset
+5. Visualize dataset. use `train` for train dataset, `test` for test dataset
 ```bash
 rosrun decopin_hand visualize_dataset.py train # train/test
 ```
 
-5. Train with dataset. Default model is `NIN`. If you use `vgg16`, pretrained weights of VGG16 is downloaded to `scripts/VGG_ILSVRC_16_layers.npz` at the first time you run this script.
+6. Train with dataset. Default model is `NIN`. If you use `vgg16`, pretrained weights of VGG16 is downloaded to `scripts/VGG_ILSVRC_16_layers.npz` at the first time you run this script.
 ```bash
 rosrun decopin_hand train.py --epoch 30
 ```
 
-6. Classify actions online.
+7. Classify actions online.
 ```bash
 roslaunch decopin_hand classify_action.launch
 ```
