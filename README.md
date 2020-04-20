@@ -46,7 +46,7 @@ To all launch files, `use_rosbag` and `filename` arguments can be passed to use 
 roslaunch decopin_hand save_noise.launch
 ```
 
-2. Save action spectrograms to `train_data/original_spectrogram/(target_class)`. The newly saveed spectrograms are appended to existing spectrograms.
+2. Save action spectrograms to `train_data/original_spectrogram/(target_class)`. The newly saveed spectrograms are appended to existing spectrograms. You should use rosbag to get data repeatedly.
 ```bash
 # For action spectrograms
 roslaunch decopin_hand save_action.launch target_class:=(target_class) save_when_action:=true

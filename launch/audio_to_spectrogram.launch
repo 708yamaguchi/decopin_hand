@@ -68,8 +68,8 @@
         name="action_detector_histogram" respawn="true" output="screen">
     <remap from="~input" to="/preprocess_gray_image/output" />
     <rosparam>
-      pixel_value_threshold: 10
-      pixel_ratio_threshold: 0.3
+      pixel_value_threshold: 20
+      pixel_ratio_threshold: 0.5
       lazy: false
     </rosparam>
   </node>
