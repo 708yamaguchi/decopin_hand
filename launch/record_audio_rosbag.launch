@@ -12,6 +12,6 @@
         output="screen">
   </node>
 
-  <include file="$(find decopin_hand)/launch/audio_to_spectrogram.launch" />
+  <!-- <include file="$(find decopin_hand)/launch/audio_to_spectrogram.launch" /> -->
 
 </launch>
