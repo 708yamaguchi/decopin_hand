@@ -27,13 +27,22 @@ class NIN(chainer.Chain):
             self.mlpconv4 = L.MLPConvolution2D(
                 None, (1024, 1024, self.n_class), 3, pad=1, conv_init=conv_init)
 
-    def forward(self, x, t):
+    def forward(self, x, t=None):
         h = F.max_pooling_2d(F.relu(self.mlpconv1(x)), 3, stride=2)
         h = F.max_pooling_2d(F.relu(self.mlpconv2(h)), 3, stride=2)
         h = F.max_pooling_2d(F.relu(self.mlpconv3(h)), 3, stride=2)
         h = self.mlpconv4(F.dropout(h))
         h = F.reshape(F.average_pooling_2d(h, 6), (len(x), self.n_class))
-        loss = F.softmax_cross_entropy(h, t)
 
-        chainer.report({'loss': loss, 'accuracy': F.accuracy(h, t)}, self)
-        return loss
+        self.pred = F.softmax(h)
+
+        if t is None:
+            assert not chainer.config.train
+            return
+
+        self.loss = F.softmax_cross_entropy(h, t)
+        self.acc = F.accuracy(self.pred, t)
+
+        chainer.report({'loss': self.loss, 'accuracy': self.acc}, self)
+
+        return self.loss

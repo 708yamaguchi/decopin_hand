@@ -18,6 +18,7 @@ from vgg16.vgg16_batch_normalization import VGG16BatchNormalization
 
 import matplotlib
 import numpy as np
+from os import makedirs
 import os.path as osp
 from PIL import Image as Image_
 import rospkg
@@ -29,16 +30,17 @@ class PreprocessedDataset(chainer.dataset.DatasetMixin):
 
     def __init__(self, path=None, random=True):
         rospack = rospkg.RosPack()
-        # Root directory path of image dataset
-        root = osp.join(rospack.get_path(
-            'decopin_hand'), 'train_data', 'dataset')
+        # Root directory path of train data
+        self.root = osp.join(rospack.get_path(
+            'decopin_hand'), 'train_data')
         if path is not None:
-            self.base = chainer.datasets.LabeledImageDataset(path, root)
+            self.base = chainer.datasets.LabeledImageDataset(
+                path, osp.join(self.root, 'dataset'))
         self.random = random
         # how many classes to be classified
         self.n_class = 0
         self.target_classes = []
-        with open(osp.join(root, 'n_class.txt'), mode='r') as f:
+        with open(osp.join(self.root, 'dataset', 'n_class.txt'), mode='r') as f:
             for row in f:
                 self.n_class += 1
                 self.target_classes.append(row)
@@ -112,7 +114,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         description='Learning convnet from ILSVRC2012 dataset')
-    parser.add_argument('--epoch', '-E', type=int, default=100,
+    parser.add_argument('--epoch', '-e', type=int, default=100,
                         help='Number of epochs to train')
     parser.add_argument('--gpu', '-g', type=int, default=0,
                         help='GPU ID (negative value indicates CPU)')
@@ -134,6 +136,7 @@ def main():
 
     # Initialize the model to train
     print('Device: {}'.format(device))
+    print('Model: {}'.format(args.model))
     print('Dtype: {}'.format(chainer.config.dtype))
     print('Minibatch-size: {}'.format(batchsize))
     print('epoch: {}'.format(args.epoch))
@@ -162,7 +165,9 @@ def main():
     # Set up a trainer
     # Output directory of train result
     out = osp.join(rospack.get_path('decopin_hand'),
-                   'scripts', 'result', args.model)
+                   'train_data', 'result', args.model)
+    if not osp.exists(out):
+        makedirs(out)
     updater = training.updaters.StandardUpdater(
         train_iter, optimizer, converter=converter, device=device)
     trainer = training.Trainer(updater, (args.epoch, 'epoch'), out)

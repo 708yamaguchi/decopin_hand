@@ -67,9 +67,9 @@ rosrun decopin_hand create_dataset.py --number 100
 rosrun decopin_hand visualize_dataset.py train # train/test
 ```
 
-5. Train with dataset and pretrained weights. First time you run this script, pretrained weights of VGG16 is downloaded to `scripts/VGG_ILSVRC_16_layers.npz`.
+5. Train with dataset. Default model is `NIN`. If you use `vgg16`, pretrained weights of VGG16 is downloaded to `scripts/VGG_ILSVRC_16_layers.npz` at the first time you run this script.
 ```bash
-rosrun decopin_hand train.py
+rosrun decopin_hand train.py --epoch 30
 ```
 
 6. Classify actions online.

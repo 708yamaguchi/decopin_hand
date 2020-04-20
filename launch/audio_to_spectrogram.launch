@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="use_rosbag" default="false" />
-  <arg name="filename" default="" />
+  <arg name="filename" default="/" />
   <arg name="save_noise" default="false" />
   <arg name="gui" default="false" />
 
@@ -73,7 +73,7 @@
   <group if="$(arg gui)">
     <!-- visualize mono blur spectrogram with jet colormap-->
     <node pkg="image_view" type="image_view" name="preprocessed_spectrogram_to_jet"  >
-      <remap from="image" to="/preprocess_gray_image/output" />
+      <remap from="image" to="/preprocess_gray_image/output_normalized" />
       <rosparam>
         <!-- set all pixels between 0 and 255 -->
         do_dynamic_scaling: true

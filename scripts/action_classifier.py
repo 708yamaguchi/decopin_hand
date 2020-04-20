@@ -19,6 +19,8 @@ from jsk_recognition_msgs.msg import ClassificationResult
 from nin.nin import NIN
 from vgg16.vgg16_batch_normalization import VGG16BatchNormalization
 from jsk_topic_tools import ConnectionBasedTransport  # TODO use LazyTransport
+import os.path as osp
+from process_gray_image import img_jet
 import rospy
 from sensor_msgs.msg import Image
 
@@ -26,6 +28,11 @@ from train import PreprocessedDataset
 
 
 class ActionClassifier(ConnectionBasedTransport):
+    """
+    Classify spectrogram using neural network
+    input: sensor_msgs/Image, 8UC1
+    output jsk_recognition_msgs/ClassificationResult
+    """
 
     def __init__(self):
         super(self.__class__, self).__init__()
@@ -43,7 +50,7 @@ class ActionClassifier(ConnectionBasedTransport):
         else:
             rospy.logerr('Unsupported ~model_name: {0}'
                          .format(self.model_name))
-        model_file = rospy.get_param('~model_file')
+        model_file = osp.join(self.dataset.root, 'result', self.model_name, 'model_best.npz')
         S.load_npz(model_file, self.model)
         if self.gpu != -1:
             self.model.to_gpu(self.gpu)
@@ -64,7 +71,8 @@ class ActionClassifier(ConnectionBasedTransport):
 
     def _recognize(self, imgmsg):
         bridge = cv_bridge.CvBridge()
-        bgr = bridge.imgmsg_to_cv2(imgmsg, desired_encoding='bgr8')
+        mono = bridge.imgmsg_to_cv2(imgmsg)
+        bgr = img_jet(mono)
         bgr = skimage.transform.resize(
             bgr, (self.insize, self.insize), preserve_range=True)
         input_msg = bridge.cv2_to_imgmsg(bgr.astype(np.uint8), encoding='bgr8')
@@ -72,6 +80,12 @@ class ActionClassifier(ConnectionBasedTransport):
         self.pub_input.publish(input_msg)
 
         # (Height, Width, Channel) -> (Channel, Height, Width)
+        # ###
+        # print(type())
+        # print(rgb.shape)
+        # import cv2
+        # cv2.imwrite('/home/naoya/test.png', rgb)
+        # ###
         rgb = bgr.transpose((2, 0, 1))[::-1, :, :]
         rgb = self.dataset.process_image(rgb)
         x_data = np.array([rgb], dtype=np.float32)

@@ -1,38 +1,34 @@
 <launch>
 
   <arg name="use_rosbag" default="false" />
-  <arg name="filename" default="" />
+  <arg name="filename" default="/" />
   <arg name="gui" default="true" />
 
   <include file="$(find decopin_hand)/launch/audio_to_spectrogram.launch" >
     <arg name="use_rosbag" value="$(arg use_rosbag)" />
     <arg name="filename" value="$(arg filename)" />
+    <arg name="gui" value="false" />
   </include>
 
   <!-- <!-\- Classify actions -\-> -->
-  <!-- <node pkg="decopin_hand" type="action_classifier.py" name="action_classifier" > -->
-  <!--   <remap from="~input" to="/subtracted_spectrogram_to_jet/output" /> -->
-  <!--   <rosparam subst_value="true"> -->
-  <!--     gpu: 0 -->
-  <!--     model_name: vgg16_batch_normalization -->
-  <!--     model_file: $(find decopin_hand)/scripts/result/model_best.npz -->
-  <!--     target_names: -->
-  <!--       - hit_pen -->
-  <!--       - no_action -->
-  <!--       - trace_human_finger -->
-  <!--   </rosparam> -->
-  <!-- </node> -->
+  <node pkg="decopin_hand" type="action_classifier.py" name="action_classifier" output="screen" >
+    <remap from="~input" to="/preprocess_gray_image/output_normalized" />
+    <rosparam subst_value="true">
+      gpu: 0
+      model_name: nin
+    </rosparam>
+  </node>
 
-  <!-- <!-\- Visualize action classification -\-> -->
-  <!-- <group if="$(arg gui)"> -->
-  <!--   <node if="$(arg classify_action)" name="action_classification_result" -->
-  <!--         pkg="jsk_perception" type="draw_classification_result.py" > -->
-  <!--     <remap from="~input" to="/action_classifier/output" /> -->
-  <!--     <remap from="~input/image" to="/subtracted_spectrogram_to_jet/output" /> -->
-  <!--   </node> -->
-  <!--   <node if="$(arg classify_action)" pkg="image_view" type="image_view" name="classification_result_view"  > -->
-  <!--     <remap from="image" to="/action_classification_result/output" /> -->
-  <!--   </node> -->
-  <!-- </group> -->
+  <!-- Visualize action classification -->
+  <group if="$(arg gui)">
+    <node name="action_classification_result"
+          pkg="jsk_perception" type="draw_classification_result.py" >
+      <remap from="~input" to="/action_classifier/output" />
+      <remap from="~input/image" to="/action_classifier/debug/net_input" />
+    </node>
+    <node pkg="image_view" type="image_view" name="classification_result_view"  >
+      <remap from="image" to="/action_classification_result/output" />
+    </node>
+  </group>
 
 </launch>
