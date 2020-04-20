@@ -41,6 +41,11 @@ roseus euslisp/decopin-interface.l
 ## Vibration recognition
 To all launch files, `use_rosbag` and `filename` arguments can be passed to use rosbag. By default, rosbag is paused at first. Press 'Space' key on terminal to start playing rosbag.
 
+0. Publish `/audio` topic in raspberry pi.
+```bash
+rosrun decopin_hand sph0645_audio.py
+```
+
 1. Save noise to `train_data/noise.npy`
 ```bash
 roslaunch decopin_hand save_noise.launch

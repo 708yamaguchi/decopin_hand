@@ -1,5 +1,6 @@
 <launch>
 
+  <arg name="use_microphone" default="false" />
   <arg name="use_rosbag" default="false" />
   <arg name="filename" default="/" />
   <arg name="save_noise" default="false" />
@@ -13,7 +14,7 @@
   </group>
 
   <!-- if you want to publish /audio from microphone -->
-  <group unless="$(arg use_rosbag)" >
+  <group if="$(arg use_microphone)" >
     <include file="$(find audio_capture)/launch/capture.launch" >
       <arg name="device" value="hw:2,0" />
       <arg name="channels" value="1" />
