@@ -7,15 +7,15 @@ import rospkg
 import rospy
 from sensor_msgs.msg import Image
 from topic_tools import LazyTransport
-from process_gray_image import spectral_subtract, smooth_gray_image, normalize_gray_image
+from process_gray_image import spectral_subtract, normalize_gray_image
 
 
 class PreprocessGrayImage(LazyTransport):
     """
     This class is to preprocess gray spectrogram for classifying.
     1. Spectral subtraction by spectral subtraction method
-    2. Smooth spectrogram
-    3. Normalize spectrogram (32FC1 -> 8UC1, make each pixel value 0 ~ 255)
+    # 2. Smooth spectrogram
+    # 3. Normalize spectrogram (32FC1 -> 8UC1, make each pixel value 0 ~ 255)
     """
 
     def __init__(self):
@@ -34,8 +34,8 @@ class PreprocessGrayImage(LazyTransport):
         # Publisher and Subscriber
         self.bridge = cv_bridge.CvBridge()
         self.pub = self.advertise('~output', Image, queue_size=1)
-        self.pub_without_smoothing = self.advertise(
-            '~output_before_smoothing', Image, queue_size=1)
+        self.pub_normalized = self.advertise(
+            '~output_normalized', Image, queue_size=1)
         self.subscribe()
 
     def subscribe(self):
@@ -47,23 +47,21 @@ class PreprocessGrayImage(LazyTransport):
 
     def _process(self, imgmsg):
         raw_img = self.bridge.imgmsg_to_cv2(imgmsg)
-        # Noise subtract
+        # Spectral subtract
         subtracted_img = spectral_subtract(raw_img, self.mean_spectrum)
         # Normalize
         normalized_img = normalize_gray_image(subtracted_img)
-        # Smoothing
-        blured_img = smooth_gray_image(normalized_img)
         # 32FC1 -> 8UC1
-        blured_img = blured_img.astype(np.uint8)
+        normalized_img = normalized_img.astype(np.uint8)
         # Publish
-        # after noise subtraction and before smoothing
-        pubmsg = self.bridge.cv2_to_imgmsg(blured_img)
+        # Spectral subtracted image
+        pubmsg = self.bridge.cv2_to_imgmsg(subtracted_img)
         pubmsg.header = imgmsg.header
         self.pub.publish(pubmsg)
-        # after smoothing
-        pubmsg = self.bridge.cv2_to_imgmsg(blured_img)
+        # Normalized img
+        pubmsg = self.bridge.cv2_to_imgmsg(normalized_img)
         pubmsg.header = imgmsg.header
-        self.pub.publish(pubmsg)
+        self.pub_normalized.publish(pubmsg)
 
 
 if __name__ == '__main__':

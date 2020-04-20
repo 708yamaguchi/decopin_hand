@@ -53,8 +53,6 @@
 
   <!-- mono spectrogram -> preprocessed mono spectrogram -->
   <!-- 1. Spectral subtraction by spectral subtraction method -->
-  <!-- 2. Smooth spectrogram -->
-  <!-- 3. Normalize spectrogram (32FC1 -> 8UC1, make each pixel value 0 ~ 255) -->
   <node pkg="decopin_hand" type="preprocess_gray_image.py" name="preprocess_gray_image" >
     <remap from="~input" to="/spectrum_to_spectrogram/spectrogram" />
   </node>
@@ -62,21 +60,19 @@
   <!-- audio -> spectrum -> mono spectrogram -> preprocessed mono spectrogram -->
   <!-- end: Data conversion -->
 
-  <!-- Detect action based on pixel histogram-->
-  <!-- Should we really use color histogram? or we should only use num of pixels of 0 value? -->
-  <node pkg="decopin_hand" type="action_detector_histogram.py"
-        name="action_detector_histogram" respawn="true" output="screen">
+  <!-- Detect action based on pixel value sum (nearly equals to volume) -->
+  <node pkg="decopin_hand" type="action_detector_volume.py"
+        name="action_detector_volume" respawn="true" output="screen">
     <remap from="~input" to="/preprocess_gray_image/output" />
     <rosparam>
-      pixel_value_threshold: 20
-      pixel_ratio_threshold: 0.5
+      power_per_pixel_threshold: 0.5
       lazy: false
     </rosparam>
   </node>
 
   <group if="$(arg gui)">
     <!-- visualize mono blur spectrogram with jet colormap-->
-    <node pkg="image_view" type="image_view" name="subtracted_spectrogram_to_jet"  >
+    <node pkg="image_view" type="image_view" name="preprocessed_spectrogram_to_jet"  >
       <remap from="image" to="/preprocess_gray_image/output" />
       <rosparam>
         <!-- set all pixels between 0 and 255 -->
@@ -86,37 +82,6 @@
       </rosparam>
     </node>
 
-    <!-- Visualize single channel histogram -->
-    <!-- Copied from jsk_perception/sample/sample_single_channel_histogram.launch -->
-    <node name="single_channel_histogram"
-          pkg="nodelet" type="nodelet"
-          args="standalone jsk_perception/SingleChannelHistogram">
-      <remap from="~input" to="/preprocess_gray_image/output"/>
-      <rosparam>
-        use_mask: false
-        hist_size: 50
-      </rosparam>
-    </node>
-    <node name="color_histogram_to_histogram_with_range"
-          pkg="topic_tools" type="transform"
-          args="/single_channel_histogram/output
-                /color_histogram_to_histogram_with_range/output
-                jsk_recognition_msgs/HistogramWithRange
-                &quot;
-                jsk_recognition_msgs.msg.HistogramWithRange(
-                header=m.header,
-                bins=[
-                jsk_recognition_msgs.msg.HistogramWithRangeBin(
-                min_value=i * 255.0 / len(m.histogram),
-                max_value=(i + 1) * 255.0 / len(m.histogram),
-                count=x) for i, x in enumerate(m.histogram)
-                ])
-                &quot;
-                --import jsk_recognition_msgs
-                --wait-for-start"/>
-    <node name="rqt_histogram_plot"
-          pkg="jsk_rqt_plugins" type="rqt_histogram_plot"
-          args="/color_histogram_to_histogram_with_range/output"/>
   </group>
 
 </launch>
@@ -133,3 +98,35 @@
 <!--     anormal_threshold: $(arg anormal_threshold) -->
 <!--   </rosparam> -->
 <!-- </node> -->
+
+<!-- <!-\- Visualize single channel histogram -\-> -->
+<!-- <!-\- Copied from jsk_perception/sample/sample_single_channel_histogram.launch -\-> -->
+<!-- <node name="single_channel_histogram" -->
+<!--       pkg="nodelet" type="nodelet" -->
+<!--       args="standalone jsk_perception/SingleChannelHistogram"> -->
+<!--   <remap from="~input" to="/preprocess_gray_image/output"/> -->
+<!--   <rosparam> -->
+<!--     use_mask: false -->
+<!--     hist_size: 50 -->
+<!--   </rosparam> -->
+<!-- </node> -->
+<!-- <node name="color_histogram_to_histogram_with_range" -->
+<!--       pkg="topic_tools" type="transform" -->
+<!--       args="/single_channel_histogram/output -->
+<!--             /color_histogram_to_histogram_with_range/output -->
+<!--             jsk_recognition_msgs/HistogramWithRange -->
+<!--             &quot; -->
+<!--             jsk_recognition_msgs.msg.HistogramWithRange( -->
+<!--             header=m.header, -->
+<!--             bins=[ -->
+<!--             jsk_recognition_msgs.msg.HistogramWithRangeBin( -->
+<!--             min_value=i * 255.0 / len(m.histogram), -->
+<!--             max_value=(i + 1) * 255.0 / len(m.histogram), -->
+<!--             count=x) for i, x in enumerate(m.histogram) -->
+<!--             ]) -->
+<!--             &quot; -->
+<!--             -\-import jsk_recognition_msgs -->
+<!--             -\-wait-for-start"/> -->
+<!-- <node name="rqt_histogram_plot" -->
+<!--       pkg="jsk_rqt_plugins" type="rqt_histogram_plot" -->
+<!--       args="/color_histogram_to_histogram_with_range/output"/> -->
