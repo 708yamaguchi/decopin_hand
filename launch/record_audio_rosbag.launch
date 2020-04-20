@@ -1,0 +1,17 @@
+<launch>
+  <!-- USAGE -->
+  <!-- roslaunch decopin_hand record_rosbag.launch filename:=$HOME/.ros/rosbag/hoge.bag -->
+  <arg name="filename" />
+
+  <node name="rosbag_record"
+        pkg="rosbag" type="record"
+        args="-O $(arg filename)
+              -b 0
+              /audio
+              "
+        output="screen">
+  </node>
+
+  <include file="$(find decopin_hand)/launch/audio_to_spectrogram.launch" />
+
+</launch>

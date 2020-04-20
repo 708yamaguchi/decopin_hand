@@ -39,14 +39,14 @@ roseus euslisp/decopin-interface.l
 ```
 
 ## Vibration recognition
-To all launch files, `use_rosbag` and `filename` arguments can be passed to use rosbag. By default, rosbag is paused at first. Press 'Space' key on terminal to start playing erosbag.
+To all launch files, `use_rosbag` and `filename` arguments can be passed to use rosbag. By default, rosbag is paused at first. Press 'Space' key on terminal to start playing rosbag.
 
 1. Save noise to `train_data/noise.npy`
 ```bash
 roslaunch decopin_hand save_noise.launch
 ```
 
-2. Save action spectrograms to `train_data/original_spectrogram/(target_class)`. The newly saveed spectrograms are appended to existing spectrograms. You should use rosbag to get data repeatedly.
+2. Save action spectrograms to `train_data/original_spectrogram/(target_class)`. The newly saveed spectrograms are appended to existing spectrograms.
 ```bash
 # For action spectrograms
 roslaunch decopin_hand save_action.launch target_class:=(target_class) save_when_action:=true
@@ -54,8 +54,11 @@ roslaunch decopin_hand save_action.launch target_class:=(target_class) save_when
 roslaunch decopin_hand save_action.launch target_class:=no_action save_when_action:=false
 ```
 NOTE
-  - `anormal_threshold` argument can be passed. You should set proper threshold, which is effected by size of spectrogram, fft\_exec\_rate ... etc. The higher the threshold is, the harder the spectrograms are saved. You can check whether the threshold is proper by viewing saved spectrograms.
-  - Before starting to detect action, some waiting time is required. This is preparation time to calculate mahalanobis distance.
+  - You should use rosbag during save_action.launch because we can get train data repeatedly from rosbag.
+    ```bash
+    # To record rosbag with /audio topic
+    roslaunch decopin_hand record_audio_rosbag.launch filename:=$HOME/.ros/rosbag/hoge.bag
+    ```
 
 3. Create dateaset for chainer from saved spectrograms. `--number 100` means to use maximum 100 images for each class in dataset.
 ```bash
@@ -75,24 +78,6 @@ rosrun decopin_hand train.py --epoch 30
 6. Classify actions online.
 ```bash
 roslaunch decopin_hand classify_action.launch
-```
-
-## Visualize spectrogram processing
-1. Save spectrogram and noise data which you want to proces later to `scripts/example` directory
-```bash
-roslaunch decopin_hand audio_to_spectrogram.launch
-# Press key when you want to save spectrogram and noise.
-rosrun decopin_hand save_example.py input:=/spectrum_to_spectrogram/spectrogram
-```
-
-2. Reproduce spectrogram processing. Show and save original and processed spectrogram.
-```bash
-rosrun decopin_hand process_example.py
-```
-
-3. Show histogram of gray spectrogram.
-```bash
-roslaunch decopin_hand show_histogram image_file:=(gray_spectrogram_path)
 ```
 
 ## Requirements
