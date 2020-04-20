@@ -38,6 +38,12 @@ roseus euslisp/decopin-interface.l
 (send *ri* :angle-vector (send *robot* :reset-pose))
 ```
 
+6. Move dynamixels via nanoKONTROL2
+After launching this file, you can control dynamixels from sliders on the controller. The control state is managed by smach state machine. You can see the state on smach viewer.
+```bash
+roslaunch decopin_hand decopin_hand_kontrol.launch
+```
+
 ## Vibration recognition
 To all launch files, `use_rosbag` and `filename` arguments can be passed to use rosbag. By default, rosbag is paused at first. Press 'Space' key on terminal to start playing rosbag.
 

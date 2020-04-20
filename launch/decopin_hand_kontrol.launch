@@ -8,7 +8,7 @@
 
   <!-- Move fingers based on the joy topic. State machine is used at state transition control. -->
   <node pkg="decopin_hand" type="decopin_hand_kontrol.l" name="decopin_hand_kontrol"
-        args="(main)" respawn="true"/>
+        args="(main)" respawn="true" output="screen"/>
 
   <!-- Visualize state transition  -->
   <node pkg="smach_viewer" type="smach_viewer.py" name="smach_viewer"
