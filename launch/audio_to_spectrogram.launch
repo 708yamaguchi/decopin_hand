@@ -27,7 +27,7 @@
   <!-- audio -> spectrum -> mono spectrogram -> preprocessed mono spectrogram -->
 
   <!-- audio -> spectrum -->
-  <node pkg="jsk_perception" type="audio_to_spectrum.py" name="audio_to_spectrum" respawn="true">
+  <node pkg="audio_to_spectrogram" type="audio_to_spectrum.py" name="audio_to_spectrum" respawn="true">
     <remap from="~audio" to="/audio" />
     <rosparam>
       <!-- meaning of rosparams below are described in audio_to_spectrum.py -->
@@ -41,7 +41,7 @@
   </node>
 
   <!-- spectrum -> mono spectrogram -->
-  <node pkg="jsk_perception" type="spectrum_to_spectrogram.py" name="spectrum_to_spectrogram" respawn="true">
+  <node pkg="audio_to_spectrogram" type="spectrum_to_spectrogram.py" name="spectrum_to_spectrogram" respawn="true">
     <remap from="~spectrum" to="/audio_to_spectrum/spectrum_filtered" />
     <rosparam>
       <!-- meaning of rosparams below are described in spectrum_to_spectrogram.py -->
@@ -87,7 +87,7 @@
 </launch>
 
 <!-- <!-\- visualize spectrum -\-> -->
-<!-- <!-\- <node pkg="jsk_perception" type="spectrum_plot.py" name="spectrum_plot"  > -\-> -->
+<!-- <!-\- <node pkg="audio_to_spectrogram" type="spectrum_plot.py" name="spectrum_plot"  > -\-> -->
 <!-- <!-\-   <remap from="~spectrum" to="/audio_to_spectrum/spectrum_filtered" /> -\-> -->
 <!-- <!-\- </node> -\-> -->
 
