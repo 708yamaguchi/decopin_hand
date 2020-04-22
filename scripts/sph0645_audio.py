@@ -117,10 +117,15 @@ class SPH0645Audio(object):
         if self.stream.is_active():
             self.stream.stop_stream()
 
+    def kill(self, signum, frame):
+        rospy.loginfo('Ctrl-c is pressed. Exit')
+        self.stop()
 
 if __name__ == '__main__':
     rospy.init_node('audio_capture_microphone')
     s = SPH0645Audio()
     r = rospy.Rate(100)
+    import signal
     while s.stream.is_active():
         r.sleep()
+        signal.signal(signal.SIGINT, s.kill)
