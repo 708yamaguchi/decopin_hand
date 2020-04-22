@@ -62,7 +62,7 @@ roslaunch decopin_hand save_noise.launch
    You can record rosbag by the following commands:
 ```bash
 # To record rosbag with /audio topic
-roslaunch decopin_hand audio_to_spectrogram.launch
+roslaunch decopin_hand audio_to_spectrogram.launch gui:=true
 roslaunch decopin_hand record_audio_rosbag.launch filename:=$HOME/.ros/rosbag/hoge.bag
 ```
 
@@ -71,6 +71,7 @@ roslaunch decopin_hand record_audio_rosbag.launch filename:=$HOME/.ros/rosbag/ho
    - By using `use_rosbag:=true` and `filename:=xxx`, you can save action spectrograms from rosbag. When using rosbag, **DO NOT** publish `/audio` topic from real microphone.
    - You can change threshold of action saving by `threshold:=xxx`. The smaller the value is, the more easily action is saved.
 ```bash
+rossetlocal # if you want to use rosbag
 # For action spectrograms
 roslaunch decopin_hand save_action.launch target_class:=(target_class) save_when_action:=true use_rosbag:=true filename:=$HOME/.ros/rosbag/hoge.bag
 # For non action spectrograms
