@@ -9,6 +9,7 @@ from contextlib import contextmanager
 import numpy as np
 import os
 import pyaudio
+import signal
 import sys
 
 import rospy
@@ -125,8 +126,8 @@ class SPH0645Audio(object):
 if __name__ == '__main__':
     rospy.init_node('audio_capture_microphone')
     s = SPH0645Audio()
-    r = rospy.Rate(100)
-    import signal
+    r = rospy.Rate(1)
+    signal.signal(signal.SIGINT, s.kill)
     while s.stream.is_active():
         r.sleep()
-        signal.signal(signal.SIGINT, s.kill)
+
