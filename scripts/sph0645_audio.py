@@ -37,6 +37,7 @@ def ignore_stderr(enable=True):
     else:
         yield
 
+
 class SPH0645Audio(object):
     def __init__(self, channel=0, suppress_error=True):
         try:
@@ -100,7 +101,7 @@ class SPH0645Audio(object):
     def stream_callback(self, in_data, frame_count, time_info, status):
         # split channel
         data = np.fromstring(in_data, np.int32)
-        data = data >> 14; # This 18bit integer is raw data from microphone
+        data = data >> 14  # This 18bit integer is raw data from microphone
         data = (data >> 2).astype(np.int16)
         chunk_per_channel = len(data) / self.channels
         data = np.reshape(data, (chunk_per_channel, self.channels))

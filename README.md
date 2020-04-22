@@ -11,19 +11,25 @@ roscd decopin_hand/model
 ../euslisp/decopin_hand_view.l  # for visualization
 ```
 
-3. Find dynamixels from USB port.
+3. Add write permission to `/dev/ttyUSB*`.
+Write following message to `/etc/udev/rules.d/99-dynamixel-workbench-cdc.rules`. (Please create file if missing)
+```
+KERNEL=="ttyUSB*", DRIVERS=="ftdi_sio", MODE="0666", ATTR{device/latency_timer}="1"
+````
+
+4. Find dynamixels from USB port.
 ```bash
 rosrun decopin_hand find_dynamixel /dev/ttyUSB0
 ```
 
-4. Start dynamixel controllers. You can change config of dynamixels at `config/yamaguchi_dynamixel
+5. Start dynamixel controllers. You can change config of dynamixels at `config/yamaguchi_dynamixel
 .yaml`
 
 ```bash
 roslaunch decopin_hand dynamixel_workbench_controllers.launch
 ```
 
-5. Move dynamixels via roseus
+6. Move dynamixels via roseus
 The robot class is inherited from robot-interface.
 ```lisp
 roseus euslisp/decopin_hand_interface.l
@@ -38,7 +44,7 @@ roseus euslisp/decopin-interface.l
 (send *ri* :angle-vector (send *robot* :reset-pose))
 ```
 
-6. Move dynamixels via nanoKONTROL2
+7. Move dynamixels via nanoKONTROL2
 After launching this file, you can control dynamixels from sliders on the controller. The control state is managed by smach state machine. You can see the state on smach viewer.
 ```bash
 roslaunch decopin_hand decopin_hand_kontrol.launch
