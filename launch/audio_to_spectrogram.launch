@@ -3,8 +3,8 @@
   <arg name="use_microphone" default="false" />
   <arg name="use_rosbag" default="false" />
   <arg name="filename" default="/" />
-  <arg name="save_noise" default="false" />
   <arg name="gui" default="false" />
+  <arg name="threshold" default="0.5" />
 
   <group if="$(arg use_rosbag)" >
     <param name="use_sim_time" value="true" />
@@ -65,8 +65,8 @@
   <node pkg="decopin_hand" type="action_detector_volume.py"
         name="action_detector_volume" respawn="true" output="screen">
     <remap from="~input" to="/preprocess_gray_image/output" />
-    <rosparam>
-      power_per_pixel_threshold: 0.5
+    <rosparam subst_value="true">
+      power_per_pixel_threshold: $(arg threshold)
       lazy: false
     </rosparam>
   </node>

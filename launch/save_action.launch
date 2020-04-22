@@ -2,14 +2,16 @@
 
   <arg name="use_rosbag" default="false" />
   <arg name="filename" default="/" />
+  <arg name="gui" default="true"/>
   <arg name="target_class" default="" />
   <arg name="save_when_action" default="true"/>
-  <arg name="gui" default="true"/>
+  <arg name="threshold" default="0.5"/>
 
   <include file="$(find decopin_hand)/launch/audio_to_spectrogram.launch" >
     <arg name="use_rosbag" value="$(arg use_rosbag)" />
     <arg name="filename" value="$(arg filename)" />
     <arg name="gui" value="$(arg gui)" />
+    <arg name="threshold" value="$(arg threshold)" />
   </include>
 
   <!-- Collect spectrogram with action class, only when the robot is in action. -->
