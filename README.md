@@ -67,12 +67,14 @@ roslaunch decopin_hand record_audio_rosbag.launch filename:=$HOME/.ros/rosbag/ho
 ```
 
 3. Save action spectrograms to `train_data/original_spectrogram/(target_class)`. The newly saveed spectrograms are appended to existing spectrograms.\
-   By using `use_rosbag:=true` and `filename:=xxx`, you can save action spectrograms from rosbag. When using rosbag, **DO NOT** publish `/audio` topic from real microphone.
+   NOTE
+   - By using `use_rosbag:=true` and `filename:=xxx`, you can save action spectrograms from rosbag. When using rosbag, **DO NOT** publish `/audio` topic from real microphone.
+   - You can change threshold of action saving by `threshold:=xxx`. The smaller the value is, the more easily action is saved.
 ```bash
 # For action spectrograms
-roslaunch decopin_hand save_action.launch target_class:=(target_class) save_when_action:=true # use_rosbag:=true filename:=$HOME/.ros/rosbag/hoge.bag
+roslaunch decopin_hand save_action.launch target_class:=(target_class) save_when_action:=true use_rosbag:=true filename:=$HOME/.ros/rosbag/hoge.bag
 # For non action spectrograms
-roslaunch decopin_hand save_action.launch target_class:=no_action save_when_action:=false # use_rosbag:=true filename:=$HOME/.ros/rosbag/hoge.bag
+roslaunch decopin_hand save_action.launch target_class:=no_action save_when_action:=false use_rosbag:=true filename:=$HOME/.ros/rosbag/hoge.bag
 ```
 
 4. Create dateaset for chainer from saved spectrograms. `--number 100` means to use maximum 100 images for each class in dataset.
