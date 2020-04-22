@@ -55,7 +55,10 @@ To all launch files, `use_rosbag` and `filename` arguments can be passed to use 
 
 0. Publish `/audio` topic in raspberry pi.
 ```bash
+# audio only
 rosrun decopin_hand sph0645_audio.py
+# with motor control
+roslaunch decopin_hand mic_and_motor.launch
 ```
 Then, You can see the spectrograms calculated from `/audio` by `roslaunch decopin_hand audio_to_spectrogram.launch`
 

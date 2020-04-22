@@ -1,0 +1,6 @@
+<launch>
+
+  <include file="$(find decopin_hand)/launch/dynamixel_controllers.launch" />
+  <node pkg="decopin_hand" type="sph0645_audio.py" name="sph0645_audio" />
+
+</launch>
