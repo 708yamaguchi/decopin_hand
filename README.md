@@ -53,7 +53,7 @@ rosrun decopin_hand sph0645_audio.py
 ```
 Then, You can see the spectrograms calculated from `/audio` by `roslaunch decopin_hand audio_to_spectrogram.launch`
 
-1. Save noise to `train_data/noise.npy`. By subtracting noise, spectrograms become clear.
+1. Save noise to `train_data/noise.npy`. By subtracting noise, spectrograms become clear. During this script, you must not give vibration to the sensor.
 ```bash
 roslaunch decopin_hand save_noise.launch
 ```
