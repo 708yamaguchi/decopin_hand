@@ -4,23 +4,29 @@
 (ros::load-ros-manifest "jsk_recognition_msgs")
 
 (decopin-hand-init)
-(setq *classify-result* nil)
+(send *robot* :angle-vector (send *ri* :state :potentio-vector))
 
 (defun cb (msg)
   (setq a msg)
-  (setq *classify-result* (send msg :classifier)))
+  (when (equal (car (send msg :label_names)) (format nil "touch_nail~%"))
+    (print "touch nail !!")
+    (setq *classify-result* t))
+  )
 
 
 (defun main ()
   (ros::subscribe "/action_classifier/output"
                   jsk_recognition_msgs::ClassificationResult #'cb)
   (ros::rate 100)
+  (setq *classify-result* nil)
+  (print "Please start demo")
   (do-until-key
    (ros::spin-once)
-   (when (equal *classify-result* "touch_nail\n")
-     (print "touch nail !!")
+   (when *classify-result*
      (send *ri* :angle-vector
-           (v+ (send *robot* :angle-vector) #f(-30 0 0 0)))
+           (send *robot* :angle-vector
+                 (v+ (send *robot* :angle-vector) #f(-60 0 0 0)))
+           3000)
      (send *ri* :wait-interpolation)
      (return-from main)))
   )
