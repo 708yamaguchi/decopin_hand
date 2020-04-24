@@ -62,7 +62,7 @@ roslaunch decopin_hand mic_and_motor.launch
 ```
 Then, You can see the spectrograms calculated from `/audio` by `roslaunch decopin_hand audio_to_spectrogram.launch`
 
-1. Save noise to `train_data/noise.npy`. By subtracting noise, spectrograms become clear. During this script, you must not give vibration to the sensor.
+1. Save noise to `train_data/noise.npy`. By subtracting noise, spectrograms become clear. During this script, you must not give vibration to the sensor. You should update noise data everytime before vibration recognition because environmental vibration noise differs everytime.
 ```bash
 roslaunch decopin_hand save_noise.launch
 ```
