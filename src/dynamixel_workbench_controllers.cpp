@@ -793,6 +793,7 @@ void DynamixelController::trajectoryMsgCallback(const trajectory_msgs::JointTraj
               jnt_tra_point_msg.positions.push_back(way_point[id_num].position);
               jnt_tra_point_msg.velocities.push_back(way_point[id_num].velocity);
               jnt_tra_point_msg.accelerations.push_back(way_point[id_num].acceleration);
+              jnt_tra_point_msg.time_from_start = ros::Duration(index + write_period_);
             }
 
             jnt_tra_msg_->points.push_back(jnt_tra_point_msg);

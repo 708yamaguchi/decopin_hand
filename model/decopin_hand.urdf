@@ -96,6 +96,7 @@
       link="fixed_finger_middle_link" />
     <axis
       xyz="0 -1 0" />
+    <limit velocity="3.1416" effort="30" />
   </joint>
   <link
     name="fixed_finger_tip_link">
@@ -149,6 +150,7 @@
       link="fixed_finger_tip_link" />
     <axis
       xyz="0 1 0" />
+    <limit velocity="3.1416" effort="30" />
     <mimic
       joint="fixed_finger_middle_joint"
       multiplier="-1"
@@ -206,6 +208,7 @@
       link="rotated_finger_left_link" />
     <axis
       xyz="0 1 0" />
+    <limit velocity="3.1416" effort="30" />
   </joint>
   <link
     name="rotated_finger_left_middle_link">
@@ -259,6 +262,7 @@
       link="rotated_finger_left_middle_link" />
     <axis
       xyz="0 -1 0" />
+    <limit velocity="3.1416" effort="30" />
   </joint>
   <link
     name="rotated_finger_left_tip_link">
@@ -312,6 +316,7 @@
       link="rotated_finger_left_tip_link" />
     <axis
       xyz="0 1 0" />
+    <limit velocity="3.1416" effort="30" />
     <mimic
       joint="rotated_finger_left_middle_joint"
       multiplier="-1"
@@ -369,6 +374,7 @@
       link="rotated_finger_right_link" />
     <axis
       xyz="0 1 0" />
+    <limit velocity="3.1416" effort="30" />
     <mimic
       joint="rotated_finger_left_joint"
       multiplier="-1"
@@ -426,6 +432,7 @@
       link="rotated_finger_right_middle_link" />
     <axis
       xyz="0 1 0" />
+    <limit velocity="3.1416" effort="30" />
   </joint>
   <link
     name="rotated_finger_right_tip_link">
@@ -479,6 +486,7 @@
       link="rotated_finger_right_tip_link" />
     <axis
       xyz="0 1 0" />
+    <limit velocity="3.1416" effort="30" />
     <mimic
       joint="rotated_finger_right_middle_joint"
       multiplier="-1"
