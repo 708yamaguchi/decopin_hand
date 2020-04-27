@@ -74,6 +74,8 @@ class SPH0645Audio(object):
             self.channels = info["maxInputChannels"]
             self.device_index = info["index"]
 
+        # self.channels is the number of channels of the microphone
+        # self.channel is the target channel to get single channel data
         self.channel = min(self.channels - 1, max(0, self.channel))
         self.stream = self.pyaudio.open(
             input=True, start=False, output=False,
@@ -101,12 +103,11 @@ class SPH0645Audio(object):
 
     def stream_callback(self, in_data, frame_count, time_info, status):
         # split channel
-        data = np.fromstring(in_data, np.int32)
+        data = np.frombuffer(in_data, np.int32)
         data = data >> 14  # This 18bit integer is raw data from microphone
         data = (data >> 2).astype(np.int16)
         chunk_per_channel = len(data) / self.channels
-        data = np.reshape(data, (chunk_per_channel, self.channels))
-        chan_data = data[:, self.channel]
+        chan_data = data[self.channel::self.channels]
         # invoke callback
         self.pub_audio.publish(AudioData(data=chan_data.tostring()))
         return None, pyaudio.paContinue
@@ -130,4 +131,3 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, s.kill)
     while s.stream.is_active():
         r.sleep()
-
