@@ -48,7 +48,8 @@ class SPH0645Audio(object):
         with ignore_stderr(enable=suppress_error):
             self.pyaudio = pyaudio.PyAudio()
         self.name = rospy.get_param('~name', 'snd_rpi_simple_card')
-        self.rate = int(rospy.get_param('~rate', '44100'))
+        self.rate = int(rospy.get_param('~rate', 44100))
+        self.frame_per_buffer = int(rospy.get_param('~frame_per_buffer', 1024))
         # bit depth is assumed as 32 (paInt32). This is based on SPH0645LM4H.
         self.channels = None
         self.channel = channel
@@ -77,13 +78,14 @@ class SPH0645Audio(object):
         # self.channels is the number of channels of the microphone
         # self.channel is the target channel to get single channel data
         self.channel = min(self.channels - 1, max(0, self.channel))
+        # Do not use callback if you do not want sensor noise
+        # Noise is, for example, 0b11111111 data.
         self.stream = self.pyaudio.open(
-            input=True, start=False, output=False,
+            input=True, output=False,
             format=pyaudio.paInt32,
             channels=self.channels,
             rate=self.rate,
-            frames_per_buffer=1024,
-            stream_callback=self.stream_callback,
+            frames_per_buffer=self.frame_per_buffer,
             input_device_index=self.device_index,
         )
         self.start()
@@ -101,17 +103,6 @@ class SPH0645Audio(object):
         except:
             pass
 
-    def stream_callback(self, in_data, frame_count, time_info, status):
-        # split channel
-        data = np.frombuffer(in_data, np.int32)
-        data = data >> 14  # This 18bit integer is raw data from microphone
-        data = (data >> 2).astype(np.int16)
-        chunk_per_channel = len(data) / self.channels
-        chan_data = data[self.channel::self.channels]
-        # invoke callback
-        self.pub_audio.publish(AudioData(data=chan_data.tostring()))
-        return None, pyaudio.paContinue
-
     def start(self):
         if self.stream.is_stopped():
             self.stream.start_stream()
@@ -127,7 +118,16 @@ class SPH0645Audio(object):
 if __name__ == '__main__':
     rospy.init_node('audio_capture_microphone')
     s = SPH0645Audio()
-    r = rospy.Rate(1)
+    r = rospy.Rate(float(s.rate) / s.frame_per_buffer)
     signal.signal(signal.SIGINT, s.kill)
     while s.stream.is_active():
+        # Input data to 16 bit
+        in_data = np.frombuffer(s.stream.read(1024), np.int32)
+        in_data = in_data >> 14  # This 18bit integer is raw data from microphone
+        int16_data = (in_data >> 2).astype(np.int16)
+        # Retreive 1 channel data
+        chunk_per_channel = len(int16_data) / s.channels
+        channel_data = int16_data[s.channel::s.channels]
+        # Publish audio topic
+        s.pub_audio.publish(AudioData(data=channel_data.tostring()))
         r.sleep()
