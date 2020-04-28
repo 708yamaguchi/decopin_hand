@@ -6,6 +6,7 @@
   <arg name="target_class" default="" />
   <arg name="save_when_action" default="true"/>
   <arg name="threshold" default="0.5"/>
+  <arg name="save_data_rate" default="5"/>
 
   <include file="$(find decopin_hand)/launch/audio_to_spectrogram.launch" >
     <arg name="use_rosbag" value="$(arg use_rosbag)" />
@@ -21,7 +22,7 @@
     <remap from="~input_raw" to="/spectrum_to_spectrogram/spectrogram" />
     <rosparam subst_value="true">
       <!-- params below is enabled only when save_data is true -->
-      save_data_rate: 5 <!-- related to spectrogram_period -->
+      save_data_rate: $(arg save_data_rate) <!-- related to spectrogram_period -->
       target_class: $(arg target_class)
       save_when_action: $(arg save_when_action)
       save_raw_spectrogram: true
