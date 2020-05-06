@@ -15,3 +15,14 @@
   (send *robot* :reset-pose)
   (send *robot* :inverse-kinematics (make-coords :pos #f(-30 100 150)) :rotation-axis nil :revert-if-fail nil)
   (send *robot* :rarm :end-coords))
+
+
+;; Close gripper: (+ 0 + -)
+;; Open gripper : (- 0 - +)
+(defun move-gripper (diff-av &optional (tm 3000))
+  (send *ri* :angle-vector
+        (send *robot* :angle-vector
+              (v+ (send *robot* :angle-vector) diff-av))
+        tm)
+  (send *ri* :wait-interpolation)
+  )
