@@ -82,7 +82,7 @@ roslaunch decopin_hand record_audio_rosbag.launch filename:=$HOME/.ros/rosbag/ho
 ```bash
 rossetlocal # if you want to use rosbag
 # For action spectrograms
-roslaunch decopin_hand save_action.launch target_class:=(target_class) save_when_action:=true use_rosbag:=true filename:=$HOME/.ros/rosbag/hoge.bag
+roslaunch decopin_hand save_action.launch target_class:=(target_class) save_when_action:=true use_rosbag:=true threshold:=0.5 save_data_rate:=5 filename:=$HOME/.ros/rosbag/hoge.bag
 # For non action spectrograms
 roslaunch decopin_hand save_action.launch target_class:=no_action save_when_action:=false use_rosbag:=true filename:=$HOME/.ros/rosbag/hoge.bag
 ```
