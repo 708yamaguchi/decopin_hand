@@ -2,11 +2,11 @@
 
   <arg name="launch_mic" default="false" />
 
-  <group if="launch_mic" >
+  <group if="$(arg launch_mic)" >
     <include file="$(find decopin_hand)/launch/usb_mic.launch" />
   </group>
 
-  <include file="$(find ros_speech_recognition)/launch/usb_mic.launch" >
+  <include file="$(find ros_speech_recognition)/launch/speech_recognition.launch" >
     <arg name="launch_sound_play" value="false" />
     <arg name="launch_audio_capture" value="false" />
     <arg name="audio_topic" value="/speech_audio" />
@@ -17,4 +17,5 @@
     <arg name="language" default="ja-JP" />
     <arg name="continuous" default="true" />
   </include>
+
 </launch>
