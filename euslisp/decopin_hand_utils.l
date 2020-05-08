@@ -1,4 +1,4 @@
-(require "package://decopin_hand/euslisp/decopin_hand.l")
+(require "package://decopin_hand/euslisp/decopin_hand_interface.l")
 
 (defmethod decopin_hand-robot
   (:inverse-kinematics
@@ -19,10 +19,11 @@
 
 ;; Close gripper: (+ 0 + -)
 ;; Open gripper : (- 0 - +)
-(defun move-gripper (diff-av &optional (tm 3000))
+(defun move-gripper (diff-av &optional (tm 3000) &key (wait t))
   (send *ri* :angle-vector
         (send *robot* :angle-vector
               (v+ (send *robot* :angle-vector) diff-av))
         tm)
-  (send *ri* :wait-interpolation)
+  (if wait
+    (send *ri* :wait-interpolation))
   )
