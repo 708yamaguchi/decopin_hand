@@ -1,0 +1,20 @@
+<launch>
+
+  <arg name="launch_mic" default="false" />
+
+  <group if="launch_mic" >
+    <include file="$(find decopin_hand)/launch/usb_mic.launch" />
+  </group>
+
+  <include file="$(find ros_speech_recognition)/launch/usb_mic.launch" >
+    <arg name="launch_sound_play" value="false" />
+    <arg name="launch_audio_capture" value="false" />
+    <arg name="audio_topic" value="/speech_audio" />
+    <arg name="n_channel" value="1" />
+    <arg name="depth" default="16" />
+    <arg name="sample_rate" default="44100" />
+    <arg name="engine" default="Google" />
+    <arg name="language" default="ja-JP" />
+    <arg name="continuous" default="true" />
+  </include>
+</launch>
