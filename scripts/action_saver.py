@@ -21,7 +21,7 @@ class ActionSaver(object):
 
     def __init__(self):
         # Config for saving spectrogram
-        target_class = rospy.get_param('~target_class')
+        self.target_class = rospy.get_param('~target_class')
         self.save_raw_spectrogram = rospy.get_param('~save_raw_spectrogram')
         rospack = rospkg.RosPack()
         self.train_dir = osp.join(rospack.get_path(
@@ -29,12 +29,14 @@ class ActionSaver(object):
         if not osp.exists(self.train_dir):
             makedirs(self.train_dir)
         self.image_save_dir = osp.join(
-            self.train_dir, 'original_spectrogram', target_class)
+            self.train_dir, 'original_spectrogram', self.target_class)
         if not osp.exists(self.image_save_dir):
             makedirs(self.image_save_dir)
         self.raw_image_save_dir = osp.join(self.image_save_dir, 'raw')
         if not osp.exists(self.raw_image_save_dir):
             makedirs(self.raw_image_save_dir)
+        noise = np.load(osp.join(self.train_dir, 'noise.npy'))
+        np.save(osp.join(self.image_save_dir, 'noise.npy'), noise)
         # ROS
         self.bridge = CvBridge()
         self.save_data_rate = rospy.get_param('~save_data_rate')
@@ -78,16 +80,21 @@ class ActionSaver(object):
             file_num = len(
                 listdir(self.image_save_dir)) + 1  # start from 00001.npy
             file_name = osp.join(
-                self.image_save_dir, '{0:05d}.png'.format(file_num))
+                self.image_save_dir, '{}_{:0=5d}.png'.format(
+                    self.target_class, file_num))
             mono_spectrogram = self.bridge.imgmsg_to_cv2(self.spectrogram_msg)
             Image_.fromarray(mono_spectrogram).save(file_name)
             # self.spectrogram_msg = None
             rospy.loginfo('save spectrogram: ' + file_name)
             if self.save_raw_spectrogram:
                 file_name_raw = osp.join(
-                    self.raw_image_save_dir, '{0:05d}_raw.png'.format(file_num))
-                mono_spectrogram_raw = self.bridge.imgmsg_to_cv2(
-                    self.spectrogram_raw_msg, desired_encoding='32FC1')
+                    self.raw_image_save_dir, '{}_{:0=5d}_raw.png'.format(
+                        self.target_class, file_num))
+                try:
+                    mono_spectrogram_raw = self.bridge.imgmsg_to_cv2(
+                        self.spectrogram_raw_msg, desired_encoding='32FC1')
+                except AttributeError:
+                    return
                 _max = mono_spectrogram_raw.max()
                 _min = mono_spectrogram_raw.min()
                 mono_spectrogram_raw = (mono_spectrogram_raw - _min) / (_max - _min) * 255.0

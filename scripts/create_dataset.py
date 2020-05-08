@@ -20,13 +20,15 @@
 #                      - classB -- 001.png
 #                               |- 002.png
 #                               |- ...
-# dataset -- n_class.txt
-#         |- train_images.txt  # necessary for chainer
+#
+# dataset -- train_images.txt  # necessary for chainer
 #         |- test_images.txt   # necessary for chainer
 #         |- train_(class)000*.png
 #         |- ...
 #         |- test_(class)000*.png
 #         |- ...
+#
+# n_class.txt
 #
 # Total data number
 # train: (number of images per class) * (train:test rate)       * (augment number)
@@ -98,7 +100,7 @@ def split():
     os.mkdir(dataset_dir)
     # write how many classes
     classes = sorted(os.listdir(origin_dir))
-    with open(osp.join(dataset_dir, 'n_class.txt'), mode='w') as f:
+    with open(osp.join(root_dir, 'n_class.txt'), mode='w') as f:
         for class_name in classes:
             f.write(class_name + '\n')
     for class_id, class_name in enumerate(classes):
@@ -109,9 +111,9 @@ def split():
         image_num_per_class = min(args.number, file_num)
         selected_images = random.sample(range(file_num), image_num_per_class)
         for i, file_name in enumerate(np.array(file_names)[selected_images]):
-            if file_name == 'raw':
+            if file_name.endswith('.png') is not True:
                 continue
-            saved_file_name = class_name + file_name
+            saved_file_name = class_name + '_' + file_name
             img = Image_.open(osp.join(origin_dir, class_name, file_name))
             img = img_jet(np.asarray(img))[:, :, [2, 1, 0]]  # bgr -> rgb
             img = Image_.fromarray(img)

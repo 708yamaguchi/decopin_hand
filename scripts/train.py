@@ -40,7 +40,7 @@ class PreprocessedDataset(chainer.dataset.DatasetMixin):
         # how many classes to be classified
         self.n_class = 0
         self.target_classes = []
-        with open(osp.join(self.root, 'dataset', 'n_class.txt'), mode='r') as f:
+        with open(osp.join(self.root, 'n_class.txt'), mode='r') as f:
             for row in f:
                 self.n_class += 1
                 self.target_classes.append(row)
