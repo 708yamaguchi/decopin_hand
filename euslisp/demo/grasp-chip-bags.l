@@ -38,25 +38,28 @@
                   jsk_recognition_msgs::ClassificationResult #'cb)
 
   ;; speech recognition before start demo
-  ;; (ros::rate 10)
-  ;; (setq *speech-result* nil)
-  ;; (print "Start speech recognition")
-  ;; (do-until-key
-  ;;  (ros::spin-once)
-  ;;  (when *speech-result*
-  ;;    (return)))
-  ;; (print "OK. Start grasping ...")
-  ;; (setq *speech-result* nil)
+  (ros::rate 10)
+  (setq *speech-result* nil)
+  (print "Start speech recognition")
+  (do-until-key
+   (ros::spin-once)
+   (when *speech-result*
+     (return)))
+  (print "OK. Start grasping ...")
+  (setq *speech-result* nil)
 
   ;; grasping
   (ros::rate 100)
   (setq *classify-result* nil)
-  (move-gripper #f(50 0 0 -50) 5000 :wait nil)
+  (move-gripper #f(70 0 0 -70) 4000 :wait nil)
   (do-until-key
    (ros::spin-once)
    (when *classify-result*
      (send *ri* :stop-motion)
      (return)))
+  (print "I am going to grasp chip bag.")
+  (send *robot* :angle-vector (send *ri* :state :potentio-vector))
+  (move-gripper #f(20 0 0 -20) 2000 :wait t)
   (print "I grasped chip bag.")
   (setq *classify-result* nil)
   )
