@@ -111,7 +111,7 @@ roslaunch decopin_hand classify_action.launch
 ```bash
 rosrun decopin_hand visualize_spectrogram_process.py -t (target_class)
 ```
-Visualize and save classification result. Input file path is `$(arg spectrogram_dir)/$(arg input_file_name)` and output file path is `$(arg spectrogram_dir)/$(arg output_file_name)` You can use output file of `visualize_spectrogram_process.py` as input of this script.
+Visualize classification result. You can save file by right-click of the image_view window. Input file path is `$(arg spectrogram_dir)/$(arg input_file_name)` and output file path is `$(arg spectrogram_dir)/$(arg output_file_name)` You can use output file of `visualize_spectrogram_process.py` as input of this script.
 ```bash
 roslaunch decopin_hand classify_action_static.launch spectrogram_dir:=xxx input_file_name:=yyy
 ```
