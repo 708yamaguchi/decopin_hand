@@ -107,6 +107,15 @@ rosrun decopin_hand train.py --epoch 30
 roslaunch decopin_hand classify_action.launch
 ```
 
+8. Visualize spectrogram processing and save spectrograms at each processing stages. This script uses `original_spectrogram` directory created by `action_saver.py`
+```bash
+rosrun decopin_hand visualize_spectrogram_process.py -t (target_class)
+```
+Visualize and save classification result. Input file path is `$(arg spectrogram_dir)/$(arg input_file_name)` and output file path is `$(arg spectrogram_dir)/$(arg output_file_name)` You can use output file of `visualize_spectrogram_process.py` as input of this script.
+```bash
+roslaunch decopin_hand classify_action_static.launch spectrogram_dir:=xxx input_file_name:=yyy
+```
+
 ## Requirements
 For python 2.x, following packages work:
 - imageio==2.6.0 (require for imgaug)

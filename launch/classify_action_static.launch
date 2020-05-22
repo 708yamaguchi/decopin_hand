@@ -1,0 +1,37 @@
+<launch>
+
+  <arg name="spectrogram_dir" default="$(find decopin_hand)/train_data/original_spectrogram/chip_bag" />
+  <arg name="input_file_name" default="processed_spectrogram.png" />
+  <!-- <arg name="output_file_name" default="classified_spectrogram_%04i.png" /> -->
+  <arg name="output_file_name" default="classified_spectrogram.png" />
+
+  <node pkg="jsk_perception" type="image_publisher.py" name="image_publisher" >
+    <rosparam subst_value="true">
+      file_name: $(arg spectrogram_dir)/$(arg input_file_name)
+      rate: 1
+    </rosparam>
+  </node>
+
+  <!-- <!-\- Classify actions -\-> -->
+  <node pkg="decopin_hand" type="action_classifier.py" name="action_classifier" output="screen" >
+    <remap from="~input" to="/image_publisher/output" />
+    <rosparam subst_value="true">
+      gpu: 0
+      model_name: nin
+    </rosparam>
+  </node>
+
+  <!-- Visualize action classification -->
+  <node name="action_classification_result"
+        pkg="jsk_perception" type="draw_classification_result.py" >
+    <remap from="~input" to="/action_classifier/output" />
+    <remap from="~input/image" to="/action_classifier/debug/net_input" />
+  </node>
+  <node pkg="image_view" type="image_view" name="classification_result_view" output="screen" >
+    <remap from="image" to="/action_classification_result/output" />
+    <rosparam subst_value="true">
+      filename_format: $(arg spectrogram_dir)/$(arg output_file_name)
+    </rosparam>
+  </node>
+
+</launch>
