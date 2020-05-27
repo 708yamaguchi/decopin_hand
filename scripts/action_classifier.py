@@ -38,7 +38,11 @@ class ActionClassifier(ConnectionBasedTransport):
         super(self.__class__, self).__init__()
         self.gpu = rospy.get_param('~gpu', -1)
         self.dataset = PreprocessedDataset()
-        self.target_names = self.dataset.target_classes
+        self.target_names_ordered = self.dataset.target_classes
+        self.target_names = rospy.get_param('~target_names', self.target_names_ordered)
+        for i, name in enumerate(self.target_names):
+            if not name.endswith('\n'):
+                self.target_names[i] = name + '\n'
         self.model_name = rospy.get_param('~model_name')
         if self.model_name == 'nin':
             self.insize = 227
@@ -46,7 +50,7 @@ class ActionClassifier(ConnectionBasedTransport):
         elif self.model_name == 'vgg16':
             self.insize = 224
             self.model = VGG16BatchNormalization(
-                n_class=len(self.target_names))
+                n_class=len(self.target))
         else:
             rospy.logerr('Unsupported ~model_name: {0}'
                          .format(self.model_name))
@@ -101,16 +105,24 @@ class ActionClassifier(ConnectionBasedTransport):
                 x = Variable(x_data)
                 self.model(x)
 
+        # swap_labels[label number in self.target_names]
+        # -> label number in self.target_names_ordered
+        swap_labels = [self.target_names_ordered.index(name) for name in self.target_names]
+        for i in range(len(swap_labels)):
+            if not (i in swap_labels):
+                rospy.logerr('Wrong target_names is given by rosparam.')
+                exit()
         proba = cuda.to_cpu(self.model.pred.data)[0]
-        label = np.argmax(proba)
-        label_name = self.target_names[label]
-        label_proba = proba[label]
+        proba_swapped = [proba[swap_labels[i]] for i, p in enumerate(proba)]
+        label_swapped = np.argmax(proba_swapped)
+        label_name = self.target_names[label_swapped]
+        label_proba = proba_swapped[label_swapped]
         cls_msg = ClassificationResult(
             header=imgmsg.header,
-            labels=[label],
+            labels=[label_swapped],
             label_names=[label_name],
             label_proba=[label_proba],
-            probabilities=proba,
+            probabilities=proba_swapped,
             classifier=self.model_name,
             target_names=self.target_names,
         )

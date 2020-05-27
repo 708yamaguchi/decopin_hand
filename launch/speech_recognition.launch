@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="launch_audio_capture" default="false" />
+  <arg name="launch_audio_capture" default="true" />
 
   <arg name="device" default="hw:0,0" />
   <arg name="audio_topic" default="speech_audio" />

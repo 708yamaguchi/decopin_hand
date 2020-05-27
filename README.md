@@ -106,6 +106,12 @@ rosrun decopin_hand train.py --epoch 30
 ```bash
 roslaunch decopin_hand classify_action.launch
 ```
+  You can fix class names' color in classification result image by specifying order of class names like below:
+  ```xml
+  <rosparam>
+    target_names: [none, other, chip_bag]
+  </rosparam>
+  ```
 
 8. Visualize spectrogram processing and save spectrograms at each processing stages. This script uses `original_spectrogram` directory created by `action_saver.py`
 ```bash
