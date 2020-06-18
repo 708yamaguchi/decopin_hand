@@ -8,6 +8,8 @@
         args="-O $(arg filename)
               -b 0
               /audio
+              /speech_audio
+              /vibration
               "
         output="screen">
   </node>

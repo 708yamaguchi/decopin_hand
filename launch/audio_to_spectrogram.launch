@@ -14,22 +14,21 @@
   </group>
 
   <!-- if you want to publish /audio from microphone -->
-  <group if="$(arg use_microphone)" >
-    <include file="$(find audio_capture)/launch/capture.launch" >
-      <arg name="device" value="hw:2,0" />
-      <arg name="channels" value="1" />
-      <arg name="sample_rate" value="44100" />
-      <arg name="format" value="wave" />
-      <arg name="ns" value="/" />
-    </include>
-  </group>
+  <node if="$(arg use_microphone)" output="screen"
+        name="audio_capture" pkg="audio_capture" type="audio_capture">
+    <remap from="audio" to="/vibration" />
+    <param name="device" value="hw:2,0"/>
+    <param name="channels" value="1"/>
+    <param name="sample_rate" value="44100"/>
+    <param name="format" value="wave"/>
+  </node>
 
   <!-- Start: Data conversion -->
   <!-- audio -> spectrum -> mono spectrogram -> preprocessed mono spectrogram -->
 
   <!-- audio -> spectrum -->
   <node pkg="audio_to_spectrogram" type="audio_to_spectrum.py" name="audio_to_spectrum" respawn="true">
-    <remap from="~audio" to="/audio" />
+    <remap from="~audio" to="/vibration" />
     <rosparam>
       <!-- meaning of rosparams below are described in audio_to_spectrum.py -->
       mic_sampling_rate: 44100
@@ -37,7 +36,8 @@
       bitdepth: 16
       high_cut_freq: 20000
       low_cut_freq: 20
-      fft_exec_rate: 600
+      <!-- fft_exec_rate: 600 -->
+      fft_exec_rate: 150
     </rosparam>
   </node>
 

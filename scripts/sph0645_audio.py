@@ -54,7 +54,8 @@ class SPH0645Audio(object):
         self.channels = None
         self.channel = channel
         self.device_index = None
-        self.pub_audio = rospy.Publisher("audio", AudioData, queue_size=10)
+        # To use this topic in fetch master, topic name is audio -> vibration
+        self.pub_audio = rospy.Publisher("vibration", AudioData, queue_size=10)
 
         # find device
         count = self.pyaudio.get_device_count()

@@ -16,7 +16,7 @@
     <rosparam subst_value="true">
       gpu: 0
       model_name: nin
-      <!-- target_names: [none, other, chip_bag] -->
+      target_names: [none, other, touch_nail]
     </rosparam>
   </node>
 
