@@ -24,8 +24,10 @@
   (:init ()
     ;; Setup robot
     (decopin-hand-init)
+    ;; (send *robot* :angle-vector
+    ;;       (send *ri* :state :potentio-vector :wait-until-update t))
     (send *robot* :angle-vector
-          (send *ri* :state :potentio-vector :wait-until-update t))
+          (send *ri* :state :potentio-vector))
     (setq reference-av- #f(0 0 0 0))
     (setq last-moving-time- nil)
     (setq pushed-button- :stop) ;; :stop, :start or :setup
