@@ -11,7 +11,8 @@
   </include>
 
   <!-- Classify actions -->
-  <node pkg="decopin_hand" type="action_classifier.py" name="action_classifier" output="screen" >
+  <node pkg="decopin_hand" type="action_classifier.py" name="action_classifier"
+        clear_params="true" output="screen" >
     <remap from="~input" to="/preprocess_gray_image/output_normalized" />
     <rosparam subst_value="true">
       gpu: 0
