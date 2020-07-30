@@ -14,6 +14,7 @@ import sys
 
 import rospy
 from audio_common_msgs.msg import AudioData
+from topic_tools import LazyTransport
 
 # suppress error messages from ALSA
 # https://stackoverflow.com/questions/7088672/pyaudio-working-but-spits-out-error-messages-each-time
@@ -39,8 +40,9 @@ def ignore_stderr(enable=True):
         yield
 
 
-class SPH0645Audio(object):
+class SPH0645Audio(LazyTransport):
     def __init__(self, channel=0, suppress_error=True):
+        super(self.__class__, self).__init__()
         try:
             self.stop()
         except:
@@ -55,7 +57,7 @@ class SPH0645Audio(object):
         self.channel = channel
         self.device_index = None
         # To use this topic in fetch master, topic name is audio -> vibration
-        self.pub_audio = rospy.Publisher("vibration", AudioData, queue_size=10)
+        self.pub_audio = self.advertise('vibration', AudioData, queue_size=10)
 
         # find device
         count = self.pyaudio.get_device_count()
@@ -116,12 +118,24 @@ class SPH0645Audio(object):
         rospy.loginfo('Ctrl-c is pressed. Exit')
         self.stop()
 
+    def subscribe(self):
+        pass
+
+    def unsubscribe(self):
+        pass
+
+
 if __name__ == '__main__':
     rospy.init_node('audio_capture_microphone')
     s = SPH0645Audio()
     r = rospy.Rate(float(s.rate) / s.frame_per_buffer)
     signal.signal(signal.SIGINT, s.kill)
     while s.stream.is_active():
+        if s._connection_status is not True:
+            # If not subscribed, only read stream to avoid 'IOError: [Errno -9981] Input overflowed'
+            in_data = np.frombuffer(s.stream.read(1024), np.int32)
+            r.sleep()
+            continue
         # Input data to 16 bit
         in_data = np.frombuffer(s.stream.read(1024), np.int32)
         in_data = in_data >> 14  # This 18bit integer is raw data from microphone
