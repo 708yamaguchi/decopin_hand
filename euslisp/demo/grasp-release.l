@@ -9,7 +9,8 @@
 (send *robot* :angle-vector (send *ri* :state :potentio-vector))
 
 ;; states are :grasp and :release
-(setq *state* :release)
+;; (setq *state* :release)
+(setq *state* :grasp)
 
 (defun cb (msg)
   (setq a msg)
@@ -33,11 +34,11 @@
      (cond
       ((equal *state* :release)
        (send *robot* :angle-vector
-             (v+ (send *robot* :angle-vector) #f(80 0 0 -80)))
+             (v+ (send *robot* :angle-vector) #f(130 0 0 -130)))
        (setq *state* :grasp))
       ((equal *state* :grasp)
        (send *robot* :angle-vector
-             (v+ (send *robot* :angle-vector) #f(-80 0 0 80)))
+             (v+ (send *robot* :angle-vector) #f(-130 0 0 130)))
        (setq *state* :release)))
      (send *ri* :angle-vector (send *robot* :angle-vector) 2000)
      (format t "Moving...~%")
