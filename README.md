@@ -4,6 +4,7 @@ decopin_hand
 ## Quick Usage
 At the PC which can ssh to raspi708 (raspberry pi on decopin\_hand),
 ```bash
+export ROSLAUNCH_SSH_UNKNOWN=1
 export ROS_MASTER_URI=http://localhost:11311
 roslaunch decopin_hand bringup_remote.launch
 ```
