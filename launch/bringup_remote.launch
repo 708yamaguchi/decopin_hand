@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+
+  <machine name="raspi708" user="naoya" address="raspi708.jsk.imi.i.u-tokyo.ac.jp" env-loader="/home/naoya/env-loader.sh" />
+  <machine name="localhost" address="localhost" />
+
+  <node pkg="decopin_hand" type="sph0645_audio.py" name="sph0645_audio"
+        output="screen" respawn="true" machine="raspi708">
+  </node>
+
+  <include file="$(find decopin_hand)/launch/dynamixel_controllers.launch" >
+    <arg name="machine_name" value="raspi708" />
+    <!-- yaml file in raspi708  -->
+    <arg name="dynamixel_info_file" value="/home/naoya/audio_ws/src/decopin_hand/config/yamaguchi_dynamixel.yaml" />
+  </include>
+
+</launch>
