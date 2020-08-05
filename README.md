@@ -1,6 +1,13 @@
 decopin_hand
 ============
 
+## Quick Usage
+At the PC which can ssh to raspi708 (raspberry pi on decopin\_hand),
+```bash
+export ROS_MASTER_URI=http://localhost:11311
+roslaunch decopin_hand bringup_remote.launch
+```
+
 ## Control hand
 1. Build `jsk_model_tools` including [this pull request](https://github.com/jsk-ros-pkg/jsk_model_tools/pull/225) to add mimic joint.
 

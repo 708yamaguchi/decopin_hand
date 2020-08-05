@@ -39,6 +39,5 @@
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>topic_tools</exec_depend>
   <exec_depend>jsk_recognition_msgs</exec_depend>
-  <exec_depend>jsk_perception</exec_depend>
 
 </package>
