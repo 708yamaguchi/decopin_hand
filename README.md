@@ -2,7 +2,15 @@ decopin_hand
 ============
 
 ## Quick Usage
-At the PC which can ssh to raspi708 (raspberry pi on decopin\_hand),
+1. Create /home/naoya/env-loader.sh at raspi708 like below:
+```
+#!/bin/bash
+. $HOME/audio_ws/devel/setup.bash
+export ROS_MASTER_URI=http://*local-machine-uri*:11311
+exec "$@"
+```
+
+1. At the PC which can ssh to raspi708 (raspberry pi on decopin\_hand),
 ```bash
 export ROSLAUNCH_SSH_UNKNOWN=1
 export ROS_MASTER_URI=http://localhost:11311
