@@ -31,7 +31,7 @@
 (ros::load-ros-manifest "jsk_recognition_msgs")
 ;; The *stable-class* is output if the same *temporary-class* continues for *duration-thre* [s]
 (setq *last-time* nil)
-(setq *duration-thre* 0.3)
+(setq *duration-thre* 0.4)
 (setq *temporary-class* nil)
 (setq *stable-class* nil)
 (defun action-cb (msg)
@@ -44,10 +44,13 @@
       (setq *stable-class* nil)
       (setq *last-time* now-time))
     (setq *temporary-class* label-name)
-    ;; Check if the same *temporary-class* continues for *duration-thre* [s]
-    (format t "*last-time*: ~9,9F~%now-time: ~9,9F~%" *last-time* now-time)
+    ;; Check if the same *temporary-class* continues for *duration-thre* [s], for debugging
+    ;; (format t "*last-time*: ~9,9F~%now-time: ~9,9F~%" *last-time* now-time)
     (when (> (- now-time *last-time*)
              *duration-thre*)
+      (when (not (equal *stable-class* *temporary-class*))
+        (format t "*stable-class* changed from ~A to ~A~%"
+                *stable-class* *temporary-class*))
       (setq *stable-class* *temporary-class*))))
 (ros::subscribe "/action_classifier/output" jsk_recognition_msgs::ClassificationResult #'action-cb)
 
