@@ -27,3 +27,30 @@
   (if wait
     (send *ri* :wait-interpolation))
   )
+
+(ros::load-ros-manifest "jsk_recognition_msgs")
+;; The *stable-class* is output if the same *temporary-class* continues for *duration-thre* [s]
+(setq *last-time* nil)
+(setq *duration-thre* 0.3)
+(setq *temporary-class* nil)
+(setq *stable-class* nil)
+(defun action-cb (msg)
+  ;; (setq *msg-debug* msg) ;; for debugging
+  (let* ((label-name (string-right-trim '(#\Newline) (car (send msg :label_names))))
+         (header-stamp (send msg :header :stamp))
+         (now-time (+ (send (ros::time-now) :sec) (* (send (ros::time-now) :nsec) 0.000000001))))
+    ;; Check if temporary class changes
+    (when (not (equal label-name *temporary-class*))
+      (setq *stable-class* nil)
+      (setq *last-time* now-time))
+    (setq *temporary-class* label-name)
+    ;; Check if the same *temporary-class* continues for *duration-thre* [s]
+    (format t "*last-time*: ~9,9F~%now-time: ~9,9F~%" *last-time* now-time)
+    (when (> (- now-time *last-time*)
+             *duration-thre*)
+      (setq *stable-class* *temporary-class*))))
+(ros::subscribe "/action_classifier/output" jsk_recognition_msgs::ClassificationResult #'action-cb)
+
+(defun print-state ()
+  (format t "*temporary-class*: ~A~%" *temporary-class*)
+  (format t "*stable-class*: ~A~%~%" *stable-class*))
