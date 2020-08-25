@@ -18,16 +18,16 @@ import cv_bridge
 from jsk_recognition_msgs.msg import ClassificationResult
 from nin.nin import NIN
 from vgg16.vgg16_batch_normalization import VGG16BatchNormalization
-from jsk_topic_tools import ConnectionBasedTransport  # TODO use LazyTransport
 import os.path as osp
 from process_gray_image import img_jet
 import rospy
 from sensor_msgs.msg import Image
+from topic_tools import LazyTransport
 
 from train import PreprocessedDataset
 
 
-class ActionClassifier(ConnectionBasedTransport):
+class ActionClassifier(LazyTransport):
     """
     Classify spectrogram using neural network
     input: sensor_msgs/Image, 8UC1
@@ -62,16 +62,15 @@ class ActionClassifier(ConnectionBasedTransport):
                                   queue_size=1)
         self.pub_input = self.advertise(
             '~debug/net_input', Image, queue_size=1)
+        self.subscribe()
 
     def subscribe(self):
-        sub = rospy.Subscriber(
+        self.sub = rospy.Subscriber(
             '~input', Image, self._recognize, callback_args=None,
             queue_size=1, buff_size=2**24)
-        self.subs = [sub]
 
     def unsubscribe(self):
-        for sub in self.subs:
-            sub.unregister()
+        self.sub.unregister()
 
     def _recognize(self, imgmsg):
         bridge = cv_bridge.CvBridge()
