@@ -17,12 +17,21 @@
     <rosparam subst_value="true">
       gpu: 0
       model_name: nin
-      <!-- target_names: [none, other, touch_nail] -->
+      target_names: [none, rub_base, rub_finger, tap_base, tap_finger]
+    </rosparam>
+  </node>
+  <!-- Continous filter to action classification result -->
+  <node pkg="decopin_hand" type="continuous_filter.py" name="continuous_filter"
+        clear_params="true" output="screen" >
+    <remap from="~input" to="/action_classifier/output" />
+    <rosparam subst_value="true">
+      duration_thre: 0.3
     </rosparam>
   </node>
 
   <!-- Visualize action classification -->
   <group if="$(arg gui)">
+    <!-- temporary classification result -->
     <node name="action_classification_result"
           pkg="jsk_perception" type="draw_classification_result.py" >
       <remap from="~input" to="/action_classifier/output" />
@@ -30,6 +39,15 @@
     </node>
     <node pkg="image_view" type="image_view" name="classification_result_view"  >
       <remap from="image" to="/action_classification_result/output" />
+    </node>
+    <!-- continuous classification result -->
+    <node name="continuous_action_classification_result"
+          pkg="jsk_perception" type="draw_classification_result.py" >
+      <remap from="~input" to="/continuous_filter/output" />
+      <remap from="~input/image" to="/action_classifier/debug/net_input" />
+    </node>
+    <node pkg="image_view" type="image_view" name="continuous_classification_result_view"  >
+      <remap from="image" to="/continuous_action_classification_result/output" />
     </node>
   </group>
 
