@@ -23,30 +23,30 @@
       ((equal *continuous-class* "rub_finger") ;; high_long
        (if (eq *state* :grasp-1-finger)
          (progn
-           (setq av-list (list (v+ (send *robot* :angle-vector) #f(0 0 0 130))))
+           (setq av-list (list (v+ (send *robot* :angle-vector) #f(0 0 0 140))))
            (setq *state* :release))
          (setq loop-continue nil)))
       ;; close 1 finger
       ((equal *continuous-class* "tap_finger") ;; high_short
        (if (eq *state* :release)
          (progn
-           (setq av-list (list (v+ (send *robot* :angle-vector) #f(0 0 0 -130))))
+           (setq av-list (list (v+ (send *robot* :angle-vector) #f(0 0 0 -140))))
            (setq *state* :grasp-1-finger))
          (setq loop-continue nil)))
       ;; open 2 fingers
       ((equal *continuous-class* "rub_base") ;; low_long
        (if (eq *state* :grasp-2-finger)
          (progn
-           (setq av-list (list (v+ (send *robot* :angle-vector) #f(0 0 0 100))
-                               (v+ (send *robot* :angle-vector) #f(-100 0 0 100))))
+           (setq av-list (list (v+ (send *robot* :angle-vector) #f(0 0 0 130))
+                               (v+ (send *robot* :angle-vector) #f(-150 0 0 130))))
            (setq *state* :release))
          (setq loop-continue nil)))
       ;; close 2 fingers
       ((equal *continuous-class* "tap_base") ;; low_short
        (if (eq *state* :release)
          (progn
-           (setq av-list (list (v+ (send *robot* :angle-vector) #f(100 0 0 0))
-                               (v+ (send *robot* :angle-vector) #f(100 0 0 -100))))
+           (setq av-list (list (v+ (send *robot* :angle-vector) #f(150 0 0 0))
+                               (v+ (send *robot* :angle-vector) #f(150 0 0 -130))))
            (setq *state* :grasp-2-finger))
          (setq loop-continue nil)))
        ;; If *continuous-class* is none or nil, do nothing
@@ -56,7 +56,7 @@
        (send *ri* :angle-vector-sequence av-list 2000)
        (send *robot* :angle-vector (car (last av-list)))
        (format t "Moving... (state is ~A)~%" *continuous-class*)
-       (unix:sleep 10)
+       (unix:sleep (+ 8 (* 4 (length av-list))))
        (send *ri* :wait-interpolation)
        (format t "Wait for input...~%")))
    (ros::sleep)
