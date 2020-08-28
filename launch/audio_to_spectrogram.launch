@@ -10,6 +10,7 @@
     <param name="use_sim_time" value="true" />
     <node name="rosbag_play"
           pkg="rosbag" type="play"
+          output="screen"
           args="$(arg filename) --clock --loop --pause"/>
   </group>
 
