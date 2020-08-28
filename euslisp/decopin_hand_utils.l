@@ -34,14 +34,27 @@
 (setq *duration-thre* 0.4)
 (setq *temporary-class* nil)
 (setq *continuous-class* nil)
+(setq *gesture-accepting* t)
 (defun action-cb (msg)
   ;; (setq *msg-debug* msg) ;; for debugging
   (setq *temporary-class* (string-right-trim '(#\Newline) (car (send msg :label_names)))))
 (ros::subscribe "/action_classifier/output" jsk_recognition_msgs::ClassificationResult #'action-cb)
+
+;; Publish the gesture which the robot hand recognize
+(ros::advertise "/gesture" jsk_recognition_msgs::ClassificationResult 1)
 (defun stable-action-cb (msg)
   ;; (setq *stable-msg-debug* msg) ;; for debugging
-  (setq *continuous-class* (string-right-trim '(#\Newline) (car (send msg :label_names)))))
+  (setq *continuous-class* (string-right-trim '(#\Newline) (car (send msg :label_names))))
+  (when (not *gesture-accepting*)
+    (send msg :labels (list 0)) ;; Set label color as black
+    (send msg :label_names (list (format nil "dead_time~%")))
+    (if (null *last-time*)
+      (setq *last-time* (send (ros::time-now) :to-sec)))
+    (setq *continuous-class* "dead_time"))
+  (ros::publish "/gesture" msg)
+  )
 (ros::subscribe "/continuous_filter/output" jsk_recognition_msgs::ClassificationResult #'stable-action-cb)
+
 
 (defun print-state ()
   (format t "*temporary-class*: ~A~%" *temporary-class*)

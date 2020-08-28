@@ -49,14 +49,22 @@
                                (v+ (send *robot* :angle-vector) #f(150 0 0 -130))))
            (setq *state* :grasp-2-finger))
          (setq loop-continue nil)))
-       ;; If *continuous-class* is none or nil, do nothing
-       (t
+      ;; Check if now is dead time
+      ((equal *continuous-class* "dead_time")
+       (if (> (- (send (ros::time-now) :to-sec) *last-time*) 10)
+         (progn
+           (setq *gesture-accepting* t)
+           (setq *last-time* nil)))
+       (setq loop-continue nil))
+      ;; If *continuous-class* is none or nil, do nothing
+      (t
         (setq loop-continue nil)))
      (when loop-continue
        (send *ri* :angle-vector-sequence av-list 2000)
        (send *robot* :angle-vector (car (last av-list)))
        (format t "Moving... (state is ~A)~%" *continuous-class*)
-       (unix:sleep (+ 8 (* 4 (length av-list))))
+       (setq *gesture-accepting* nil)
+       ;; (unix:sleep (+ 8 (* 4 (length av-list))))
        (send *ri* :wait-interpolation)
        (format t "Wait for input...~%")))
    (ros::sleep)

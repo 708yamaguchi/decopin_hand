@@ -10,10 +10,9 @@
               /audio
               /speech_audio
               /vibration
+              /gesture
               "
         output="screen">
   </node>
-
-  <!-- <include file="$(find decopin_hand)/launch/audio_to_spectrogram.launch" /> -->
 
 </launch>

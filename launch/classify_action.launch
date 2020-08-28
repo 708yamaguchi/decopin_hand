@@ -20,14 +20,21 @@
       target_names: [none, rub_base, rub_finger, tap_base, tap_finger]
     </rosparam>
   </node>
-  <!-- Continous filter to action classification result -->
-  <node pkg="decopin_hand" type="gesture_filter.py" name="gesture_filter"
-        clear_params="true" output="screen" >
-    <remap from="~input" to="/action_classifier/output" />
-    <rosparam subst_value="true">
-      duration_thre: 0.3
-    </rosparam>
-  </node>
+  <!-- <!-\- Continous filter to action classification result -\-> -->
+  <!-- <node pkg="decopin_hand" type="continuous_filter.py" name="continuous_filter" -->
+  <!--       clear_params="true" output="screen" > -->
+  <!--   <remap from="~input" to="/action_classifier/output" /> -->
+  <!--   <rosparam subst_value="true"> -->
+  <!--     duration_thre: 0.3 -->
+  <!--   </rosparam> -->
+  <!-- </node> -->
+
+  <!-- TODO: This is temporary node. If /gesture is recorded, this node is no more needed -->
+  <!-- <!-\- Publish the gesture which the robot hand recognize -\-> -->
+  <!-- <node pkg="decopin_hand" type="gesture-5.l" name="gesture_5" -->
+  <!--       output="screen" if="$(arg use_rosbag)" -->
+  <!--       args="&quot;(main)&quot;"/> -->
+  <!-- TODO -->
 
   <!-- Visualize action classification -->
   <group if="$(arg gui)">
@@ -40,15 +47,15 @@
     <node pkg="image_view" type="image_view" name="classification_result_view"  >
       <remap from="image" to="/action_classification_result/output" />
     </node>
-    <!-- gesture classification result -->
-    <node name="gesture_classification_result"
-          pkg="jsk_perception" type="draw_classification_result.py" >
-      <remap from="~input" to="/gesture_filter/output" />
-      <remap from="~input/image" to="/action_classifier/debug/net_input" />
-    </node>
-    <node pkg="image_view" type="image_view" name="gesture_classification_result_view"  >
-      <remap from="image" to="/gesture_classification_result/output" />
-    </node>
+    <!-- <!-\- gesture classification result -\-> -->
+    <!-- <node name="gesture_classification_result" -->
+    <!--       pkg="jsk_perception" type="draw_classification_result.py" > -->
+    <!--   <remap from="~input" to="/gesture" /> -->
+    <!--   <remap from="~input/image" to="/action_classifier/debug/net_input" /> -->
+    <!-- </node> -->
+    <!-- <node pkg="image_view" type="image_view" name="gesture_classification_result_view"  > -->
+    <!--   <remap from="image" to="/gesture_classification_result/output" /> -->
+    <!-- </node> -->
   </group>
 
 </launch>
