@@ -21,7 +21,7 @@
     </rosparam>
   </node>
   <!-- Continous filter to action classification result -->
-  <node pkg="decopin_hand" type="continuous_filter.py" name="continuous_filter"
+  <node pkg="decopin_hand" type="gesture_filter.py" name="gesture_filter"
         clear_params="true" output="screen" >
     <remap from="~input" to="/action_classifier/output" />
     <rosparam subst_value="true">
@@ -40,14 +40,14 @@
     <node pkg="image_view" type="image_view" name="classification_result_view"  >
       <remap from="image" to="/action_classification_result/output" />
     </node>
-    <!-- continuous classification result -->
-    <node name="continuous_action_classification_result"
+    <!-- gesture classification result -->
+    <node name="gesture_classification_result"
           pkg="jsk_perception" type="draw_classification_result.py" >
-      <remap from="~input" to="/continuous_filter/output" />
+      <remap from="~input" to="/gesture_filter/output" />
       <remap from="~input/image" to="/action_classifier/debug/net_input" />
     </node>
-    <node pkg="image_view" type="image_view" name="continuous_classification_result_view"  >
-      <remap from="image" to="/continuous_action_classification_result/output" />
+    <node pkg="image_view" type="image_view" name="gesture_classification_result_view"  >
+      <remap from="image" to="/gesture_classification_result/output" />
     </node>
   </group>
 
