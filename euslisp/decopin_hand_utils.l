@@ -30,11 +30,9 @@
 
 (ros::load-ros-manifest "jsk_recognition_msgs")
 ;; The *continuous-class* is output if the same *temporary-class* continues for *duration-thre* [s]
-(setq *last-time* nil)
 (setq *duration-thre* 0.4)
 (setq *temporary-class* nil)
 (setq *continuous-class* nil)
-(setq *gesture-accepting* t)
 (defun action-cb (msg)
   ;; (setq *msg-debug* msg) ;; for debugging
   (setq *temporary-class* (string-right-trim '(#\Newline) (car (send msg :label_names)))))
@@ -42,17 +40,23 @@
 
 ;; Publish the gesture which the robot hand recognize
 (ros::advertise "/gesture" jsk_recognition_msgs::ClassificationResult 1)
+(defun recognize-gesture (continuous-class) continuous-class) ;; Please overwrite
+(setq *class-to-label* (make-hash-table :test #'equal))
 (defun stable-action-cb (msg)
   ;; (setq *stable-msg-debug* msg) ;; for debugging
-  (setq *continuous-class* (string-right-trim '(#\Newline) (car (send msg :label_names))))
-  (when (not *gesture-accepting*)
-    (send msg :labels (list 0)) ;; Set label color as black
-    (send msg :label_names (list (format nil "dead_time~%")))
-    (if (null *last-time*)
-      (setq *last-time* (send (ros::time-now) :to-sec)))
-    (setq *continuous-class* "dead_time"))
-  (ros::publish "/gesture" msg)
-  )
+  (let* ((msg-copy (copy-object msg))
+        (gesture (recognize-gesture *continuous-class*))
+        (cls (string-right-trim '(#\Newline) (car (send msg-copy :label_names)))))
+    (when (null (gethash cls *class-to-label*))
+      (sethash cls *class-to-label* (send msg-copy :labels)))
+    (setq *continuous-class* cls)
+    (if (equal gesture "dead_time")
+      (send msg-copy :labels (list 0)) ;; Set label color as black
+      (send msg-copy :labels (gethash gesture *class-to-label*)))
+    (send msg-copy :label_names (list (format nil "~A~%" gesture)))
+    ;; (format t "labels: ~A, label_names; ~A" (send msg-copy :labels) (send msg-copy :label_names))
+    (ros::publish "/gesture" msg-copy))
+    ))
 (ros::subscribe "/continuous_filter/output" jsk_recognition_msgs::ClassificationResult #'stable-action-cb)
 
 
