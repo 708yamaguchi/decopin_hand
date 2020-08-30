@@ -28,30 +28,33 @@
   <!-- audio -> spectrum -> mono spectrogram -> preprocessed mono spectrogram -->
 
   <!-- audio -> spectrum -->
-  <node pkg="audio_to_spectrogram" type="audio_to_spectrum.py" name="audio_to_spectrum" respawn="true">
-    <remap from="~audio" to="/vibration" />
-    <rosparam>
-      <!-- meaning of rosparams below are described in audio_to_spectrum.py -->
-      mic_sampling_rate: 44100
-      fft_sampling_period: 0.1
-      bitdepth: 16
-      high_cut_freq: 20000
-      low_cut_freq: 20
-      <!-- fft_exec_rate: 600 -->
-      fft_exec_rate: 150
-    </rosparam>
-  </node>
-
-  <!-- spectrum -> mono spectrogram -->
-  <node pkg="audio_to_spectrogram" type="spectrum_to_spectrogram.py" name="spectrum_to_spectrogram" respawn="true">
-    <remap from="~spectrum" to="/audio_to_spectrum/spectrum_filtered" />
-    <rosparam>
-      <!-- meaning of rosparams below are described in spectrum_to_spectrogram.py -->
-      image_height: 200
-      image_width: 200
-      spectrogram_period: 0.5
-    </rosparam>
-  </node>
+  <!-- Do not launch thes nodes if you use rosbag which contains mono spectrogram topics -->
+  <group unless="$(arg use_rosbag)">
+    <node pkg="audio_to_spectrogram" type="audio_to_spectrum.py" name="audio_to_spectrum" respawn="true">
+      <remap from="~audio" to="/vibration" />
+      <rosparam>
+        <!-- meaning of rosparams below are described in audio_to_spectrum.py -->
+        mic_sampling_rate: 44100
+        fft_sampling_period: 0.1
+        bitdepth: 16
+        high_cut_freq: 20000
+        low_cut_freq: 20
+        <!-- fft_exec_rate: 600 -->
+        fft_exec_rate: 150
+      </rosparam>
+    </node>
+    <!-- spectrum -> mono spectrogram -->
+    <node pkg="audio_to_spectrogram" type="spectrum_to_spectrogram.py" name="spectrum_to_spectrogram" respawn="true">
+      <remap from="~spectrum" to="/audio_to_spectrum/spectrum_filtered" />
+      <rosparam>
+        <!-- meaning of rosparams below are described in spectrum_to_spectrogram.py -->
+        image_height: 200
+        image_width: 200
+        spectrogram_period: 0.5
+        publish_rate: 30
+      </rosparam>
+    </node>
+  </group>
 
   <!-- mono spectrogram -> preprocessed mono spectrogram -->
   <!-- 1. Spectral subtraction by spectral subtraction method -->

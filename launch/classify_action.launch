@@ -41,9 +41,11 @@
       <remap from="image" to="/action_classification_result/output" />
     </node>
     <!-- gesture classification result -->
+    <!-- If you want to publish /gesture topic, please rosrun other euslisp node -->
     <node name="gesture_classification_result"
           pkg="jsk_perception" type="draw_classification_result.py" >
       <remap from="~input" to="/gesture" />
+      <!-- <remap from="~input" to="/continuous_filter/output" /> -->
       <remap from="~input/image" to="/action_classifier/debug/net_input" />
     </node>
     <node pkg="image_view" type="image_view" name="gesture_classification_result_view"  >

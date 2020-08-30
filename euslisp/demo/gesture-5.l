@@ -21,7 +21,7 @@
       ;; Return the same gesture for a constant time for human visibility
       (if (< (- (send (ros::time-now) :to-sec) *dead-time-started*) 0.5)
         (return-from recognize-gesture *last-gesture*))
-      (if (< (- (send (ros::time-now) :to-sec) *dead-time-started*) 8)
+      (if (< (- (send (ros::time-now) :to-sec) *dead-time-started*) 10)
         (return-from recognize-gesture "dead_time")
         (setq *dead-time-started* nil)))
     ;; Recognize gesture

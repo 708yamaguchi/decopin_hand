@@ -8,8 +8,8 @@
         args="-O $(arg filename)
               -b 0
               /audio
-              /speech_audio
               /vibration
+              /spectrum_to_spectrogram/spectrogram
               /gesture
               "
         output="screen">
