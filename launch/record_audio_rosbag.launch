@@ -7,7 +7,6 @@
         pkg="rosbag" type="record"
         args="-O $(arg filename)
               -b 0
-              /audio
               /vibration
               /spectrum_to_spectrogram/spectrogram
               /gesture
