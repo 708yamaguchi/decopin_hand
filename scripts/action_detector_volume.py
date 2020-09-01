@@ -2,6 +2,8 @@
 
 from cv_bridge import CvBridge
 from decopin_hand.msg import InAction
+from dynamic_reconfigure.server import Server
+from decopin_hand.cfg import DecopinHandConfig
 from sensor_msgs.msg import Image
 import rospy
 from topic_tools import LazyTransport
@@ -19,7 +21,8 @@ class ActionDetectorHistogram(LazyTransport):
     def __init__(self):
         super(self.__class__, self).__init__()
         # ROS
-        self.threshold = rospy.get_param('~power_per_pixel_threshold', 0)
+        self.threshold = rospy.get_param('~power_per_pixel_threshold', 0.5)
+        srv = Server(DecopinHandConfig, self.reconfigure_cb)
         self.pub = self.advertise('~in_action', InAction, queue_size=1)
         self.cv_bridge = CvBridge()
 
@@ -28,6 +31,10 @@ class ActionDetectorHistogram(LazyTransport):
 
     def unsubscribe(self):
         self.sub.unregister()
+
+    def reconfigure_cb(self, config, level):
+        self.threshold = config.power_per_pixel_threshold
+        return config
 
     def _cb(self, msg):
         img = self.cv_bridge.imgmsg_to_cv2(msg)
@@ -42,6 +49,7 @@ class ActionDetectorHistogram(LazyTransport):
         else:
             rospy.logdebug('No action')
             pub_msg.in_action = False
+        pub_msg.threshold = self.threshold
         self.pub.publish(pub_msg)
 
 

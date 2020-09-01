@@ -13,6 +13,7 @@ add_compile_options(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   actionlib
+  dynamic_reconfigure
   sensor_msgs
   geometry_msgs
   trajectory_msgs
@@ -24,6 +25,10 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(Eigen3 REQUIRED)
+
+generate_dynamic_reconfigure_options(
+  cfg/DecopinHand.cfg
+)
 
 # Resolve system dependency on yaml-cpp, which apparently does not
 # provide a CMake find_package() module.
