@@ -16,6 +16,7 @@
   <depend>geometry_msgs</depend>
   <depend>trajectory_msgs</depend>
   <depend>control_msgs</depend>
+  <depend>dynamixel_workbench_controllers</depend>
   <depend>dynamixel_workbench_msgs</depend>
   <depend>dynamixel_workbench_toolbox</depend>
   <depend>cmake_modules</depend>
