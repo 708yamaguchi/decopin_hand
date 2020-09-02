@@ -59,6 +59,16 @@
     ))
 (ros::subscribe "/continuous_filter/output" jsk_recognition_msgs::ClassificationResult #'stable-action-cb)
 
+;; Please $ roslaunch decopin_hand audio_to_spectrogram.launch
+(setq *in-action* nil)
+;; (ros::set-dynamic-reconfigure-param
+;;  "/action_detector_volume"
+;;  "power_per_pixel_threshold" :double 0.35)
+(ros::subscribe "/action_detector_volume/in_action"
+                decopin_hand::InAction #'volume-cb)
+(defun volume-cb (msg)
+  (setq *in-action* (send msg :in_action))
+  (format t "*in-action*: ~A~%" *in-action*))
 
 (defun print-state ()
   (format t "*temporary-class*: ~A~%" *temporary-class*)
