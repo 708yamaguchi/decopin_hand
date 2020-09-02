@@ -50,6 +50,7 @@ class ActionDetectorHistogram(LazyTransport):
             rospy.logdebug('No action')
             pub_msg.in_action = False
         pub_msg.threshold = self.threshold
+        pub_msg.power_per_pixel = power_per_pixel
         self.pub.publish(pub_msg)
 
 
