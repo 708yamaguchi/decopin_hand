@@ -1,0 +1,37 @@
+<!-- Please copy this file in fetch and use in Fetch robot -->
+<!-- because pointcloud is heavy to communicate on wifi -->
+
+<!-- In your PC (Not to speak fetch's noisy warning) -->
+<!-- 1. rviz -d $(rospack find decopin_hand)/config/fetch -->
+
+<!-- In fetch -->
+<!-- 2. ssh yamaguchi@fetch15 -->
+<!-- 3. source /home/fetch/ros/indigo/devel/setup.bash -->
+<!-- 4. roslaunch color_filter.launch -->
+
+<launch>
+
+  <!-- color filter -->
+  <include file="$(find jsk_pcl_ros)/launch/hsi_color_filter.launch">
+    <arg name="INPUT" value="/head_camera/depth_registered/quater/points" />
+    <!-- for blue trash -->
+    <arg name="h_max" value="-85" />
+    <arg name="h_min" value="-95" />
+    <arg name="s_max" value="255" />
+    <arg name="s_min" value="105" />
+    <arg name="i_max" value="255" />
+    <arg name="i_min" value="0" />
+  </include>
+
+  <rosparam>
+    HSI_color_filter:
+      euclidean_clustering:
+        tolerance: 0.05
+        min_size: 300 <!-- for quater points -->
+      cluster_decomposer:
+        target_frame_id: /base_link
+        align_boxes_with_plane: false
+        align_boxes: true
+  </rosparam>
+
+</launch>
