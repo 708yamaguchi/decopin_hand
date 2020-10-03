@@ -2,7 +2,7 @@
 <!-- because pointcloud is heavy to communicate on wifi -->
 
 <!-- In your PC (Not to speak fetch's noisy warning) -->
-<!-- 1. rviz -d $(rospack find decopin_hand)/config/fetch -->
+<!-- 1. rviz -d $(rospack find decopin_hand)/config/fetch.rviz -->
 
 <!-- In fetch -->
 <!-- 2. ssh yamaguchi@fetch15 -->
