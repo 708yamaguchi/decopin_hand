@@ -18,6 +18,9 @@
   <node pkg="jsk_topic_tools" type="passthrough" name="cloud_passthrough">
     <remap from="~input" to="$(arg input_cloud)" />
     <remap from="~output" to="$(arg passthrough_cloud)" />
+    <rosparam>
+      default_duration: 0 <!-- eternal passthrough -->
+    </rosparam>
   </node>
 
   <!-- color filter -->
@@ -25,7 +28,7 @@
     <arg name="INPUT" value="$(arg passthrough_cloud)" />
     <!-- for blue trash -->
     <arg name="h_max" value="-85" />
-    <arg name="h_min" value="-95" />
+    <arg name="h_min" value="-105" />
     <arg name="s_max" value="255" />
     <arg name="s_min" value="105" />
     <arg name="i_max" value="255" />
