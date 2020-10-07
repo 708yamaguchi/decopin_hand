@@ -2,8 +2,10 @@
   <!-- USAGE -->
   <!-- roslaunch decopin_hand record_rosbag.launch filename:=$HOME/.ros/rosbag/hoge.bag -->
   <arg name="filename" />
+  <arg name="use_fetch" default="false"/>
 
-  <node name="rosbag_record"
+  <node unless="$(arg use_fetch)"
+        name="rosbag_record"
         pkg="rosbag" type="record"
         args="-O $(arg filename)
               -b 0
@@ -13,5 +15,30 @@
               "
         output="screen">
   </node>
+
+  <node if="$(arg use_fetch)"
+        name="rosbag_record"
+        pkg="rosbag" type="record"
+        args="-O $(arg filename)
+              -b 0
+              /vibration
+              /spectrum_to_spectrogram/spectrogram
+              /gesture
+
+              /tf
+              /tf_static
+              /joint_states
+              /map
+
+              /head_camera/rgb/camera_info
+              /head_camera/rgb/image_raw/compressed
+              /head_camera/depth/camera_info
+              /head_camera/depth/image_raw/compressedDepth
+
+              /HSI_color_filter/boxes
+              "
+        output="screen">
+  </node>
+
 
 </launch>

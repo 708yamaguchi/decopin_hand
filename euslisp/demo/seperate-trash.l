@@ -6,6 +6,19 @@
 (require "package://jsk_fetch_startup/euslisp/navigation-utils.l")
 (ros::load-ros-manifest "decopin_hand")
 
+;; Usage
+;; In your PC
+;; 1. roslaunch decopin_hand bringup_remote.launch
+;; 2. rviz -d $(rospack find decopin_hand)/config/fetch.rviz
+;; (Optional) roslaunch decopin_hand decopin_hand_kontrol.launch
+;; 3. roslaunch decopin_hand classify_action.launch use_rosbag:=false gui:=true
+;; (Optional) roslaunch decopin_hand record_audio_rosbag.launch use_fetch:=true
+;; In fetch
+;; 4. ssh yamaguchi@fetch15
+;; 5. source /home/fetch/ros/indigo/devel/setup.bash
+;; 6. roslaunch color_filter.launch
+
+
 ;; fetch : *fetch* and *ri*
 ;; decopin_hand : *robot* and *ri-hand*
 (fetch-init)
