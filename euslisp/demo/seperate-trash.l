@@ -9,10 +9,11 @@
 
 ;; Usage
 ;; In your PC
-;; 1. roslaunch decopin_hand bringup_remote.launch
-;; 2. rviz -d $(rospack find decopin_hand)/config/fetch.rviz
+;; 0. rossetmaster fetch15
+;; 1. roslaunch decopin_hand bringup_remote.launch # maybe 2 times
 ;; (Optional) roslaunch decopin_hand decopin_hand_kontrol.launch
-;; 3. roslaunch decopin_hand classify_action.launch use_rosbag:=false gui:=true
+;; 2. roslaunch decopin_hand classify_action.launch use_rosbag:=false gui:=true
+;; 3. rviz -d $(rospack find decopin_hand)/config/fetch.rviz
 ;; In fetch
 ;; 4. ssh yamaguchi@fetch15
 ;; 5. source /home/fetch/ros/indigo/devel/setup.bash
@@ -98,11 +99,25 @@
 (defun classify-trash ()
   (format t "Classify trash started~%")
   ;; Please see hammering.l
-  ;; TODO
-
-  ;; TODO
-  (reset-pose)
-  (format t "Classify trash ended~%")
+  (set-pose 7000)
+  (unix:sleep 1)
+  (send *fetch* :head :neck-y :joint-angle
+        (- (send *fetch* :head :neck-y :joint-angle ) 25))
+  (send *ri* :angle-vector (send *fetch* :angle-vector) 1000)
+  (while (null (send *ri* :interpolatingp))
+    (unix:usleep (* 100 1000))) ;; wait for interpolatingp become t
+  (let ((trash-class "none"))
+    (while (send *ri* :interpolatingp)
+      (ros::spin-once)
+      (if (equal *continuous-class* "none")
+        (unix:usleep (* 100 1000))
+        (progn
+          (setq trash-class *continuous-class*)
+          (return))))
+    (format t "trash-class: ~A~%" trash-class)
+    (reset-pose 7000)
+    (format t "Classify trash ended~%")
+    trash-class)
   )
 
 (defun go-to-trash-box ()
