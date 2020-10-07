@@ -133,7 +133,8 @@ if __name__ == '__main__':
     while s.stream.is_active():
         if s._connection_status is not True:
             # If not subscribed, only read stream to avoid 'IOError: [Errno -9981] Input overflowed'
-            in_data = np.frombuffer(s.stream.read(1024), np.int32)
+            # https://stackoverflow.com/questions/10733903/pyaudio-input-overflowed
+            in_data = np.frombuffer(s.stream.read(1024, exception_on_overflow=False), np.int32)
             r.sleep()
             continue
         # Input data to 16 bit
