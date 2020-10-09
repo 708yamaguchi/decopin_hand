@@ -17,7 +17,7 @@
     <rosparam subst_value="true">
       gpu: 0
       model_name: nin
-      target_names: [none, rub_base, rub_finger, tap_base, tap_finger]
+      target_names: [none, bottle, can]
     </rosparam>
   </node>
   <!-- Continous filter to action classification result -->
@@ -44,8 +44,8 @@
     <!-- If you want to publish /gesture topic, please rosrun other euslisp node -->
     <node name="gesture_classification_result"
           pkg="jsk_perception" type="draw_classification_result.py" >
-      <remap from="~input" to="/gesture" />
-      <!-- <remap from="~input" to="/continuous_filter/output" /> -->
+      <!-- <remap from="~input" to="/gesture" /> --> <!-- for gesture-5.l -->
+      <remap from="~input" to="/continuous_filter/output" />
       <remap from="~input/image" to="/action_classifier/debug/net_input" />
     </node>
     <node pkg="image_view" type="image_view" name="gesture_classification_result_view"  >

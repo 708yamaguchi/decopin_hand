@@ -11,6 +11,7 @@
 ;; In your PC
 ;; 0. rossetmaster fetch15
 ;; 1. roslaunch decopin_hand bringup_remote.launch # maybe 2 times
+;; (Optional) roslaunch decopin_hand save_noise.launch
 ;; (Optional) roslaunch decopin_hand decopin_hand_kontrol.launch
 ;; 2. roslaunch decopin_hand classify_action.launch use_rosbag:=false gui:=true
 ;; 3. rviz -d $(rospack find decopin_hand)/config/fetch.rviz
@@ -81,6 +82,7 @@
     (when *start-demo*
       (return))
     (ros::sleep))
+  (send *ri* :speak-jp "ゴミを捨てに行きます")
   ;; Receive trash
   (send *fetch* :reset-pose)
   (send *fetch* :torso :waist-z :joint-angle 100)
@@ -106,7 +108,7 @@
   (send *ri* :angle-vector (send *fetch* :angle-vector) 1000)
   (while (null (send *ri* :interpolatingp))
     (unix:usleep (* 100 1000))) ;; wait for interpolatingp become t
-  (let ((trash-class "none"))
+  (let ((trash-class "none") (trash-class-ja))
     (while (send *ri* :interpolatingp)
       (ros::spin-once)
       (if (equal *continuous-class* "none")
@@ -117,6 +119,11 @@
     (format t "trash-class: ~A~%" trash-class)
     (reset-pose 7000)
     (format t "Classify trash ended~%")
+    (when (equal trash-class-ja "can")
+      (setq trash-class-ja "缶"))
+    (when (equal trash-class-ja "bottle")
+      (setq trash-class-ja "ペットボトル"))
+    (send *ri* :speak-jp (format nil "これは~Aです。" trash-class-ja) :wait t)
     trash-class)
   )
 
@@ -220,5 +227,12 @@
     ;; TODO
     ;; (move-gripper #f(-40 0 0 40)) ;; open
     ;; TODO
+
+    (send *fetch* :inverse-kinematics target-coords1 :use-torso nil)
+    (send *fetch* :head :neck-p :joint-angle neck-p)
+    (send *fetch* :head :neck-y :joint-angle neck-y)
+    (send *ri* :angle-vector (send *fetch* :angle-vector) 5000)
+    (send *ri* :wait-interpolation)
+    (reset-pose 5000)
     (format t "Throw trash away ended~%")
   ))
