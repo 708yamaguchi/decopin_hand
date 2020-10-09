@@ -29,7 +29,7 @@
 
   <!-- audio -> spectrum -->
   <!-- Do not launch thes nodes if you use rosbag which contains mono spectrogram topics -->
-  <group unless="$(arg use_rosbag)">
+  <!-- <group unless="$(arg use_rosbag)"> -->
     <node pkg="audio_to_spectrogram" type="audio_to_spectrum.py" name="audio_to_spectrum" respawn="true">
       <remap from="~audio" to="/vibration" />
       <rosparam>
@@ -54,7 +54,7 @@
         publish_rate: 30
       </rosparam>
     </node>
-  </group>
+  <!-- </group> -->
 
   <!-- mono spectrogram -> preprocessed mono spectrogram -->
   <!-- 1. Spectral subtraction by spectral subtraction method -->

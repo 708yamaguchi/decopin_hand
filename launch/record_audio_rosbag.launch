@@ -10,10 +10,10 @@
         args="-O $(arg filename)
               -b 0
               /vibration
-              /spectrum_to_spectrogram/spectrogram
               /gesture
               "
         output="screen">
+    <!-- /spectrum_to_spectrogram/spectrogram -->
   </node>
 
   <node if="$(arg use_fetch)"
