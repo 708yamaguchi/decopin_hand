@@ -19,7 +19,8 @@
 ;; 4. ssh yamaguchi@fetch15
 ;; 5. source /home/fetch/ros/indigo/devel/setup.bash
 ;; 6. roslaunch color_filter.launch
-;; (Optional) roslaunch decopin_hand record_audio_rosbag.launch use_fetch:=true
+;; (Optional) ssh raspi708
+;; (Optional) roslaunch decopin_hand record_audio_rosbag.launch use_fetch:=false filename:=/home/naoya/hoge.bag
 
 ;; fetch : *fetch* and *ri*
 ;; decopin_hand : *robot* and *ri-hand*
@@ -63,15 +64,19 @@
     (receive-trash)
     (setq trash-class (classify-trash))
     (go-to-trash-box)
-    (throw-trash-away :left) ;; TODO: use the result of classify-trash
+    (when (equal trash-class "can")
+      (throw-trash-away :left))
+    (when (equal trash-class "bottle")
+      (throw-trash-away :right))
     )
   )
 
 (defun receive-trash ()
   (format t "receive trash started~%")
   (reset-pose 5000)
+  (send *ri* :clear-costmap)
   (send *ri* :move-to
-        (make-coords :pos #f(4359 6408 0) :rpy (float-vector -pi 0 0))
+        (make-coords :pos #f(4359 6008 0) :rpy (float-vector -pi 0 0))
         :frame-id "/map")
   ;; Start demo by speech recognition
   (ros::rate 3)
@@ -82,7 +87,7 @@
     (when *start-demo*
       (return))
     (ros::sleep))
-  (send *ri* :speak-jp "ゴミを捨てに行きます")
+  (send *ri* :speak-jp "ゴミを捨てに行きます。ゴミを持たせてください。")
   ;; Receive trash
   (send *fetch* :reset-pose)
   (send *fetch* :torso :waist-z :joint-angle 100)
@@ -91,10 +96,8 @@
         :use-torso nil)
   (send *ri* :angle-vector (send *fetch* :angle-vector) 10000)
   (send *ri* :wait-interpolation)
-  ;; TODO
-  ;; (move-gripper #f(-40 0 0 40)) ;; open
-  ;; (move-gripper #f(40 0 0 -40)) ;; close
-  ;; TODO
+  ;; close gripper
+  (move-gripper #f(0 0 0 -150) 2000) ;; close
   (format t "Receive trash ended~%")
   )
 
@@ -119,11 +122,12 @@
     (format t "trash-class: ~A~%" trash-class)
     (reset-pose 7000)
     (format t "Classify trash ended~%")
-    (when (equal trash-class-ja "can")
+    (when (equal trash-class "can")
       (setq trash-class-ja "缶"))
-    (when (equal trash-class-ja "bottle")
+    (when (equal trash-class "bottle")
       (setq trash-class-ja "ペットボトル"))
     (send *ri* :speak-jp (format nil "これは~Aです。" trash-class-ja) :wait t)
+    (reset-pose 5000)
     trash-class)
   )
 
@@ -180,7 +184,6 @@
     (list left-bb-pos right-bb-pos))
   )
 
-;; TODO currently, left-bb is the target
 (defun throw-trash-away (which-box)
   (format t "Throw trash away started~%")
   (let* ((neck-p (send *fetch* :head :neck-p :joint-angle))
@@ -223,10 +226,8 @@
     (send *fetch* :head :neck-y :joint-angle neck-y)
     (send *ri* :angle-vector (send *fetch* :angle-vector) 5000)
     (send *ri* :wait-interpolation)
-
-    ;; TODO
-    ;; (move-gripper #f(-40 0 0 40)) ;; open
-    ;; TODO
+    ;; open gripper
+    (move-gripper #f(0 0 0 150) 2000) ;; open
 
     (send *fetch* :inverse-kinematics target-coords1 :use-torso nil)
     (send *fetch* :head :neck-p :joint-angle neck-p)

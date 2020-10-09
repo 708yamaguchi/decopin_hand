@@ -47,7 +47,7 @@
       <!-- <remap from="~input" to="/gesture" /> --> <!-- for gesture-5.l -->
       <remap from="~input" to="/continuous_filter/output" />
       <remap from="~input/image" to="/action_classifier/debug/net_input" />
-    </node>
+  </node>
     <node pkg="image_view" type="image_view" name="gesture_classification_result_view"  >
       <remap from="image" to="/gesture_classification_result/output" />
     </node>
