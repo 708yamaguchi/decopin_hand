@@ -17,7 +17,7 @@
     <rosparam subst_value="true">
       gpu: 0
       model_name: nin
-      target_names: [none, bottle, can]
+      target_names: [none, touch, moving]
     </rosparam>
   </node>
   <!-- Continous filter to action classification result -->
