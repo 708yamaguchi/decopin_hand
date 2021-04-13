@@ -36,6 +36,7 @@ class PreprocessGrayImage(LazyTransport):
         self.pub = self.advertise('~output', Image, queue_size=1)
         self.pub_normalized = self.advertise(
             '~output_normalized', Image, queue_size=1)
+        rospy.sleep(1)
         self.subscribe()
 
     def subscribe(self):

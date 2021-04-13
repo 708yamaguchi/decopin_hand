@@ -30,6 +30,7 @@ class NoiseSaver(object):
         # ROS
         rospy.on_shutdown(self.save_noise_spectrum)
         self.bridge = CvBridge()
+        rospy.sleep(1)
         self.sub = rospy.Subscriber("~raw_spectrogram", Image, self.cb)
         self.spectrogram = None
         self.save_data_rate = rospy.get_param('~save_data_rate')
