@@ -23,7 +23,7 @@
 
   <!-- Visualize action classification -->
   <node name="action_classification_result"
-        pkg="jsk_perception" type="draw_classification_result.py" >
+        pkg="decopin_hand" type="draw_classification_result.py" >
     <remap from="~input" to="/action_classifier/output" />
     <remap from="~input/image" to="/action_classifier/debug/net_input" />
   </node>
