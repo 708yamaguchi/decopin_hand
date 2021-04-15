@@ -1,7 +1,22 @@
 decopin_hand
 ============
 
-## Quick Usage
+## Setup workspace
+0. Install `docker-ce` and `nvidia-docker2`
+- docker-ce
+  https://docs.docker.com/get-docker/
+- nvidia-docker2
+  https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker
+
+1. Create docker container. Please refer to https://github.com/sktometometo/dockerfiles
+```
+git clone https://github.com/708yamaguchi/decopin_hand.git
+cd decopin_hand/docker
+docker build -t 708yamaguchi:decopin .
+docker run --rm -it --gpus all --net host 708yamaguchi:decopin /bin/bash
+```
+
+## Raspberry pi setup
 1. Create /home/naoya/env-loader.sh at raspi708 like below:
 ```
 #!/bin/bash
