@@ -29,7 +29,7 @@
   <!-- apt exec depend -->
   <exec_depend>python-pyaudio</exec_depend>
   <!-- pip exec depend -->
-  <exec_depend>imgaug-pip</exec_depend>
+  <!-- <exec_depend>imgaug-pip</exec_depend> -->
   <!-- for python2.x, use 2.6.x of python-imageio -->
   <exec_depend>python-imageio</exec_depend>
   <!-- for nanoKONTROL2 -->
